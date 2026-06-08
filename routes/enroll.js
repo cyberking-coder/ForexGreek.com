@@ -5,10 +5,12 @@ const bcrypt = require('bcrypt');
 const Razorpay = require('razorpay');
 const pool = require('../services/db');
 
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET,
-});
+function getRazorpay() {
+  return new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET,
+  });
+}
 
 const validators = [
   body('name').trim().isLength({ min: 2 }).withMessage('Name must be at least 2 characters'),
@@ -29,11 +31,14 @@ router.post('/', validators, async (req, res) => {
   }
 
   const { name, email, phone, location, password } = req.body;
+
+  // Determine price based on timer state sent from client
   const offerPrice = parseInt(process.env.COURSE_OFFER_PRICE || '4999');
   const originalPrice = parseInt(process.env.COURSE_ORIGINAL_PRICE || '19999');
   const planPrice = req.body.timerExpired === true ? originalPrice : offerPrice;
 
   try {
+    // Check duplicate email
     const [existing] = await pool.query('SELECT id FROM students WHERE email = ?', [email]);
     if (existing.length > 0) {
       return res.status(409).json({ error: 'Email already registered. Please log in or use a different email.' });
@@ -41,18 +46,22 @@ router.post('/', validators, async (req, res) => {
 
     const password_hash = await bcrypt.hash(password, 12);
 
+    // Insert student
     const [result] = await pool.query(
-      `INSERT INTO students (name, email, phone, location, password_hash, plan_price) VALUES (?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO students (name, email, phone, location, password_hash, plan_price)
+       VALUES (?, ?, ?, ?, ?, ?)`,
       [name, email, phone, location, password_hash, planPrice]
     );
     const user_id = result.insertId;
 
-    const order = await razorpay.orders.create({
+    // Create Razorpay order
+    const order = await getRazorpay().orders.create({
       amount: planPrice * 100,
       currency: 'INR',
       receipt: `fg_${user_id}_${Date.now()}`,
     });
 
+    // Store order id
     await pool.query('UPDATE students SET razorpay_order_id = ? WHERE id = ?', [order.id, user_id]);
 
     return res.json({
@@ -60,7 +69,9 @@ router.post('/', validators, async (req, res) => {
       razorpay_order_id: order.id,
       razorpay_key_id: process.env.RAZORPAY_KEY_ID,
       amount: order.amount,
-      name, email, phone,
+      name,
+      email,
+      phone,
     });
   } catch (err) {
     console.error('[Enroll] Error:', err.message);
