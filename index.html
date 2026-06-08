@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ForexGreek Trading Academy — Olympian Ascension</title>
+  <meta name="description" content="Master forex trading with Greece's elite methodology. Join the Olympian Ascension program and trade like the gods." />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            garamond: ['"EB Garamond"', 'Georgia', 'serif'],
+            geist: ['Geist', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            gold: {
+              50: '#fffbeb', 100: '#fef3c7', 200: '#fde68a',
+              300: '#fcd34d', 400: '#fbbf24', 500: '#f59e0b',
+              DEFAULT: '#e9c349', light: '#f2d675', dark: '#c9a227',
+            },
+            obsidian: { DEFAULT: '#0a0a0f', 900: '#0d0d14', 800: '#12121a', 700: '#1a1a24' },
+          },
+          animation: {
+            'ticker': 'ticker 35s linear infinite',
+            'fadeUp': 'fadeUp 0.7s ease forwards',
+            'scaleIn': 'scaleIn 0.5s ease forwards',
+            'pulse-gold': 'pulseGold 1.5s ease-in-out infinite',
+          },
+          keyframes: {
+            ticker: { '0%': { transform: 'translateX(0)' }, '100%': { transform: 'translateX(-50%)' } },
+            fadeUp: { '0%': { opacity: '0', transform: 'translateY(32px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+            scaleIn: { '0%': { opacity: '0', transform: 'scale(0.92)' }, '100%': { opacity: '1', transform: 'scale(1)' } },
+            pulseGold: { '0%,100%': { boxShadow: '0 0 0 0 rgba(233,195,73,0.4)' }, '50%': { boxShadow: '0 0 0 12px rgba(233,195,73,0)' } },
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    :root {
+      --gold: #e9c349;
+      --gold-light: #f2d675;
+      --gold-dark: #c9a227;
+      --obsidian: #0a0a0f;
+      --glass-bg: rgba(255,255,255,0.04);
+      --glass-border: rgba(233,195,73,0.15);
+    }
+    html { font-family: 'Geist', system-ui, sans-serif; }
+    body { background-color: var(--obsidian); color: #e8e6e0; overflow-x: hidden; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+      .ticker-track { animation: none !important; }
+    }
+
+    #video-gate {
+      position: fixed; inset: 0; z-index: 200;
+      background: #000;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+    }
+    #gate-video { width: 100%; height: 100%; object-fit: cover; }
+    #gate-unmute {
+      position: absolute; bottom: 56px; right: 24px;
+      background: rgba(233,195,73,0.15);
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      padding: 10px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      backdrop-filter: blur(8px);
+      transition: background 0.2s;
+    }
+    #gate-unmute:hover { background: rgba(233,195,73,0.25); }
+    #gate-tap-btn {
+      position: absolute;
+      background: var(--gold);
+      color: #000;
+      padding: 16px 32px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 18px;
+      cursor: pointer;
+      display: none;
+    }
+    #gate-progress-bar {
+      position: absolute; bottom: 0; left: 0;
+      height: 4px;
+      background: var(--gold);
+      width: 0%;
+      transition: width 0.5s linear;
+    }
+    #main-site { opacity: 0; transition: opacity 1.2s ease; }
+    #main-site.revealed { opacity: 1; }
+
+    .glass-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+
+    #site-header { transition: padding 0.3s ease, background 0.3s ease; }
+    #site-header.scrolled {
+      padding-top: 8px !important;
+      padding-bottom: 8px !important;
+      background: rgba(10,10,15,0.95) !important;
+      backdrop-filter: blur(20px);
+    }
+
+    .hero-bg {
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(233,195,73,0.12) 0%, transparent 70%),
+                  linear-gradient(180deg, #0d0d14 0%, #0a0a0f 100%);
+    }
+    .hero-grid {
+      background-image:
+        linear-gradient(rgba(233,195,73,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(233,195,73,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+
+    .text-gold-gradient {
+      background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 50%, var(--gold-dark) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .anim-fade-up { opacity: 0; transform: translateY(40px); transition: opacity 0.7s ease, transform 0.7s ease; }
+    .anim-slide-left { opacity: 0; transform: translateX(-50px); transition: opacity 0.7s ease, transform 0.7s ease; }
+    .anim-slide-right { opacity: 0; transform: translateX(50px); transition: opacity 0.7s ease, transform 0.7s ease; }
+    .anim-scale-up { opacity: 0; transform: scale(0.92); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .anim-fade-left { opacity: 0; transform: translateX(-30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+    .anim-fade-right { opacity: 0; transform: translateX(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+    .anim-visible { opacity: 1 !important; transform: none !important; }
+
+    .ticker-wrap { overflow: hidden; white-space: nowrap; }
+    .ticker-track { display: inline-flex; animation: ticker 35s linear infinite; }
+    .ticker-wrap:hover .ticker-track { animation-play-state: paused; }
+
+    #urgency-modal {
+      position: fixed; inset: 0; z-index: 150;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    #urgency-modal.open { opacity: 1; pointer-events: all; }
+    #urgency-bar { position: fixed; top: 64px; left: 0; right: 0; z-index: 100; display: none; }
+
+    #enroll-modal {
+      position: fixed; inset: 0; z-index: 160;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(12px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+      overflow-y: auto;
+      padding: 24px 16px;
+    }
+    #enroll-modal.open { opacity: 1; pointer-events: all; }
+
+    .countdown-digit {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 3rem;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 2px;
+    }
+    .countdown-digit.expired { color: #ef4444; animation: pulseRed 1s ease infinite; }
+    @keyframes pulseRed { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+    .btn-gold {
+      background: linear-gradient(135deg, var(--gold-light), var(--gold-dark));
+      color: #0a0a0f;
+      font-weight: 700;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(233,195,73,0.35); }
+    .btn-gold:active { transform: translateY(0); }
+    .btn-expired { background: #ef4444 !important; color: #fff !important; }
+
+    #hero-parallax { position: absolute; inset: 0; will-change: transform; }
+
+    .fg-input {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(233,195,73,0.2);
+      color: #e8e6e0;
+      border-radius: 8px;
+      padding: 12px 16px;
+      width: 100%;
+      font-family: 'Geist', sans-serif;
+      font-size: 15px;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+    .fg-input:focus { border-color: var(--gold); }
+    .field-error { color: #f87171; font-size: 12px; margin-top: 4px; display: none; }
+    .field-error.show { display: block; }
+
+    .spinner {
+      width: 20px; height: 20px;
+      border: 2px solid rgba(0,0,0,0.3);
+      border-top-color: #000;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: inline-block;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .bento-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(233,195,73,0.1);
+      border-radius: 16px;
+      padding: 28px;
+      transition: border-color 0.3s, transform 0.3s;
+    }
+    .bento-card:hover { border-color: rgba(233,195,73,0.35); transform: translateY(-4px); }
+
+    .section-divider { height: 1px; background: linear-gradient(90deg, transparent, rgba(233,195,73,0.3), transparent); }
+
+    .testimonial-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(233,195,73,0.12);
+      border-radius: 16px;
+      padding: 28px;
+    }
+
+    #mobile-menu { display: none; }
+    #mobile-menu.open { display: block; }
+
+    .orb { position: absolute; border-radius: 50%; filter: blur(80px); pointer-events: none; }
+  </style>
+</head>
+
+<body class="bg-obsidian text-gray-100 overflow-hidden">
+
+<!-- VIDEO GATE -->
+<div id="video-gate">
+  <video id="gate-video" src="/intro-video.mp4" autoplay muted playsinline preload="auto"></video>
+  <button id="gate-tap-btn">▶ Tap to Watch Intro</button>
+  <button id="gate-unmute">🔇 Unmute</button>
+  <div id="gate-progress-bar"></div>
+</div>
+
+<!-- MAIN SITE -->
+<div id="main-site">
+
+  <!-- URGENCY BAR -->
+  <div id="urgency-bar">
+    <div class="border-b border-gold/20 px-4 py-2 flex items-center justify-between flex-wrap gap-2" style="background:#12121a;">
+      <span class="text-sm font-mono" id="bar-text">
+        🔥 <span class="text-gold font-bold">LIMITED OFFER ENDS IN:</span>
+        <span id="bar-countdown" class="font-mono text-gold ml-1">05:00</span>
+      </span>
+      <button onclick="openEnrollModal()" class="btn-gold text-xs px-4 py-1.5 rounded-full">Claim Offer →</button>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <header id="site-header" class="fixed top-0 left-0 right-0 px-6 py-4 flex items-center justify-between" style="z-index:90; background: rgba(10,10,15,0.8); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(233,195,73,0.08);">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background: linear-gradient(135deg, #e9c349, #c9a227);">
+        <span class="text-black font-bold text-lg font-garamond">Ω</span>
+      </div>
+      <span class="font-garamond text-xl font-semibold text-white">ForexGreek</span>
+    </div>
+    <nav class="hidden md:flex items-center gap-8 text-sm text-gray-400">
+      <a href="#about" class="hover:text-gold transition-colors">About</a>
+      <a href="#curriculum" class="hover:text-gold transition-colors">Curriculum</a>
+      <a href="#results" class="hover:text-gold transition-colors">Results</a>
+      <a href="#pricing" class="hover:text-gold transition-colors">Pricing</a>
+    </nav>
+    <button onclick="openEnrollModal()" class="btn-gold hidden md:block px-5 py-2 rounded-lg text-sm">Enroll Now</button>
+    <button id="hamburger" class="md:hidden text-gray-300" onclick="toggleMobileMenu()">
+      <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </button>
+  </header>
+
+  <!-- MOBILE MENU -->
+  <div id="mobile-menu" class="fixed top-16 left-0 right-0 glass-card p-6" style="z-index:80; background: rgba(13,13,20,0.97); border-bottom: 1px solid rgba(233,195,73,0.15);">
+    <nav class="flex flex-col gap-4 text-gray-300 text-base">
+      <a href="#about" onclick="toggleMobileMenu()" class="hover:text-gold transition-colors">About</a>
+      <a href="#curriculum" onclick="toggleMobileMenu()" class="hover:text-gold transition-colors">Curriculum</a>
+      <a href="#results" onclick="toggleMobileMenu()" class="hover:text-gold transition-colors">Results</a>
+      <a href="#pricing" onclick="toggleMobileMenu()" class="hover:text-gold transition-colors">Pricing</a>
+      <button onclick="openEnrollModal(); toggleMobileMenu();" class="btn-gold w-full py-3 rounded-lg mt-2">Enroll Now</button>
+    </nav>
+  </div>
+
+  <!-- FOREX TICKER -->
+  <div class="ticker-wrap py-2 mt-16" style="background:#0d0d14; border-bottom: 1px solid rgba(233,195,73,0.1);">
+    <div class="ticker-track">
+      <span class="ticker-item" data-pair="EURUSD"></span>
+      <span class="ticker-item" data-pair="GBPUSD"></span>
+      <span class="ticker-item" data-pair="USDJPY"></span>
+      <span class="ticker-item" data-pair="AUDUSD"></span>
+      <span class="ticker-item" data-pair="USDCHF"></span>
+      <span class="ticker-item" data-pair="USDCAD"></span>
+      <span class="ticker-item" data-pair="NZDUSD"></span>
+      <span class="ticker-item" data-pair="XAUUSD"></span>
+      <span class="ticker-item" data-pair="EURUSD"></span>
+      <span class="ticker-item" data-pair="GBPUSD"></span>
+      <span class="ticker-item" data-pair="USDJPY"></span>
+      <span class="ticker-item" data-pair="AUDUSD"></span>
+      <span class="ticker-item" data-pair="USDCHF"></span>
+      <span class="ticker-item" data-pair="USDCAD"></span>
+      <span class="ticker-item" data-pair="NZDUSD"></span>
+      <span class="ticker-item" data-pair="XAUUSD"></span>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <section id="hero" class="relative min-h-screen flex flex-col items-center justify-center hero-bg hero-grid overflow-hidden pt-8">
+    <div id="hero-parallax">
+      <div class="orb" style="width:600px;height:600px;background:rgba(233,195,73,0.06);top:-10%;left:-10%;"></div>
+      <div class="orb" style="width:400px;height:400px;background:rgba(233,195,73,0.04);bottom:10%;right:-5%;"></div>
+    </div>
+    <div class="relative z-10 max-w-5xl mx-auto px-6 text-center">
+      <div class="inline-flex items-center gap-2 glass-card px-4 py-2 rounded-full text-xs font-mono text-gold mb-8" style="opacity:0; animation: fadeUp 0.7s 0.1s ease forwards;">
+        <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+        Olympian Ascension Program — Cohort IV Now Open
+      </div>
+      <h1 class="font-garamond text-5xl md:text-7xl lg:text-8xl font-bold leading-tight mb-6" style="opacity:0; animation: fadeUp 0.7s 0.25s ease forwards;">
+        Trade Like the<br/>
+        <span class="text-gold-gradient">Gods of Olympus</span>
+      </h1>
+      <p class="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed" style="opacity:0; animation: fadeUp 0.7s 0.4s ease forwards;">
+        Master the ancient discipline of forex markets with modern precision.
+        The ForexGreek methodology has produced consistently profitable traders
+        across 40+ countries. Your ascension begins today.
+      </p>
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4" style="opacity:0; animation: fadeUp 0.7s 0.55s ease forwards;">
+        <button onclick="openEnrollModal()" class="btn-gold px-8 py-4 rounded-xl text-base w-full sm:w-auto">Begin Your Ascension →</button>
+        <a href="#curriculum" class="flex items-center gap-2 text-gray-400 hover:text-gold transition-colors px-4 py-4">View Curriculum ↓</a>
+      </div>
+      <div class="flex flex-wrap items-center justify-center gap-8 mt-14" style="opacity:0; animation: fadeUp 0.7s 0.7s ease forwards;">
+        <div class="text-center"><div class="font-mono text-2xl font-bold text-gold">2,400+</div><div class="text-xs text-gray-500 mt-1">Students Enrolled</div></div>
+        <div class="w-px h-10 bg-gold/20 hidden sm:block"></div>
+        <div class="text-center"><div class="font-mono text-2xl font-bold text-gold">92%</div><div class="text-xs text-gray-500 mt-1">Profitable in 90 Days</div></div>
+        <div class="w-px h-10 bg-gold/20 hidden sm:block"></div>
+        <div class="text-center"><div class="font-mono text-2xl font-bold text-gold urgency-offer-price">₹4,999</div><div class="text-xs text-gray-500 mt-1">Limited Offer Price</div></div>
+        <div class="w-px h-10 bg-gold/20 hidden sm:block"></div>
+        <div class="text-center"><div class="font-mono text-2xl font-bold text-gold">40+</div><div class="text-xs text-gray-500 mt-1">Countries Reached</div></div>
+      </div>
+    </div>
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2" style="opacity:0; animation: fadeUp 0.7s 1s ease forwards;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(233,195,73,0.5)" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- STATS / BENTO -->
+  <section id="about" class="py-24 px-6 max-w-7xl mx-auto">
+    <div class="text-center mb-16 anim-fade-up">
+      <span class="font-mono text-gold text-sm tracking-widest">THE NUMBERS</span>
+      <h2 class="font-garamond text-4xl md:text-5xl font-bold mt-3">Results That Speak</h2>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" id="bento-grid">
+      <div class="bento-card anim-fade-up" style="--delay:0ms">
+        <div class="text-4xl mb-3">📈</div>
+        <div class="font-mono text-3xl font-bold text-gold">2,400+</div>
+        <div class="text-gray-400 mt-2 text-sm">Students from India, UAE, UK, Singapore &amp; 40+ more countries trained in the ForexGreek methodology</div>
+      </div>
+      <div class="bento-card anim-fade-up" style="--delay:120ms">
+        <div class="text-4xl mb-3">⚡</div>
+        <div class="font-mono text-3xl font-bold text-gold">92%</div>
+        <div class="text-gray-400 mt-2 text-sm">Of our students achieve consistent profitability within their first 90 days of live trading</div>
+      </div>
+      <div class="bento-card anim-fade-up" style="--delay:240ms">
+        <div class="text-4xl mb-3">🏛️</div>
+        <div class="font-mono text-3xl font-bold text-gold">7 Years</div>
+        <div class="text-gray-400 mt-2 text-sm">Of institutional trading experience distilled into a system any retail trader can master</div>
+      </div>
+      <div class="bento-card anim-fade-up" style="--delay:360ms">
+        <div class="text-4xl mb-3">💰</div>
+        <div class="font-mono text-3xl font-bold text-gold">3.2x</div>
+        <div class="text-gray-400 mt-2 text-sm">Average risk-reward ratio maintained by our students using the Olympian entry methodology</div>
+      </div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+      <div class="bento-card anim-fade-up" style="--delay:480ms">
+        <div class="flex items-start gap-4">
+          <div class="text-3xl">🎯</div>
+          <div>
+            <h3 class="font-garamond text-xl font-semibold text-white mb-2">The Olympian Methodology</h3>
+            <p class="text-gray-400 text-sm leading-relaxed">A proprietary 4-pillar framework combining institutional order flow analysis, Greek letter risk management, structural market theory, and psychological mastery — refined over 7 years of live trading.</p>
+          </div>
+        </div>
+      </div>
+      <div class="bento-card anim-fade-up" style="--delay:600ms">
+        <div class="flex items-start gap-4">
+          <div class="text-3xl">🛡️</div>
+          <div>
+            <h3 class="font-garamond text-xl font-semibold text-white mb-2">Risk Management First</h3>
+            <p class="text-gray-400 text-sm leading-relaxed">We teach capital preservation before profit pursuit. Every trade decision is governed by Delta, Theta, and Gamma principles borrowed from options theory and adapted for spot forex markets.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- CURRICULUM -->
+  <section id="curriculum" class="py-24 px-6 max-w-6xl mx-auto">
+    <div class="text-center mb-16 anim-fade-up">
+      <span class="font-mono text-gold text-sm tracking-widest">THE CURRICULUM</span>
+      <h2 class="font-garamond text-4xl md:text-5xl font-bold mt-3">Four Pillars of Olympus</h2>
+      <p class="text-gray-500 mt-4 max-w-xl mx-auto">A structured 12-week journey from fundamentals to institutional-grade trading</p>
+    </div>
+    <div class="space-y-8">
+      <div class="flex flex-col md:flex-row items-center gap-8 anim-slide-left">
+        <div class="w-full md:w-1/2 bento-card">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center text-black font-bold font-mono" style="background: var(--gold);">01</div>
+            <h3 class="font-garamond text-2xl font-semibold">Market Structure Mastery</h3>
+          </div>
+          <p class="text-gray-400 text-sm leading-relaxed mb-4">Read the market like a blueprint. Learn to identify swing highs, swing lows, break of structure, change of character, and institutional manipulation zones with precision.</p>
+          <ul class="space-y-2 text-sm text-gray-500">
+            <li class="flex items-center gap-2"><span class="text-gold">❆</span> Order blocks &amp; fair value gaps</li>
+            <li class="flex items-center gap-2"><span class="text-gold">❆</span> Liquidity sweeps &amp; stop hunts</li>
+            <li class="flex items-center gap-2"><span class="text-gold">❆</span> Multi-timeframe confluence</li>
+            <li class="flex items-center gap-2"><span class="text-gold">❆</span> Premium &amp; discount arrays</li>
+          </ul>
+        </div>
+        <div class="w-full md:w-1/2 flex items-center justify-center">
+          <div class="glass-card rounded-2xl p-8 text-center w-full max-w-xs">
+            <div class="text-6xl mb-4">🏛️</div>
+            <div class="font-mono text-gold text-sm">WEEKS 1–3</div>
+            <div class="text-white font-garamond text-lg mt-1">Foundation</div>
+            <div class="mt-4 text-gray-500 text-xs">12+ hours of video content</div>
+          </div>
+        </div>
+      </div>
+      <div class="flex flex-col md:flex-row-reverse items-center gap-8 anim-slide-right">
+        <div class="w-full md:w-1/2 bento-card">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center text-black font-bold font-mono" style="background: var(--gold);">02</div>
+            <h3 class="font-garamond text-2xl font-semibold">Entry Precision &amp; Execution</h3>
+          </div>
+          <p class="text-gray-400 text-sm leading-relaxed mb-4">Time your entries with surgical accuracy. The Olympian entry model combines displacement, retracement, and confirmation to give you high-probability setups with defined risk.</p>
+          <ul class="space-y-2 text-sm text-gray-500">
+            <li class="flex items-center gap-2"><span class="text-gold">❆</span> The 3-step Olympian entry model</li>
+            <li class="flex items-center gap-2"><span class="text-gold">❆</span> Entry timing on M1/M5/M15</li>
+            <li class="flex items-center gap-2"><span class="text-gold">❆</span> Stop loss placement science</li>
+            <li class="flex items-center gap-2"><span class="text-gold">❆</span> Take profit targeting</li>
+          </ul>
+        </div>
+        <div class="w-full md:w-1/2 flex items-center justify-center">
+          <div class="glass-card rounded-2xl p-8 text-center w-full max-w-xs">
+            <div class="text-6xl mb-4">🎯</div>
+            <div class="font-mono text-gold text-sm">WEEKS 4–6</div>
+            <div class="text-white font-garamond text-lg mt-1">Execution</div>
+            <div class="mt-4 text-gray-500 text-xs">Live trade analysis sessions</div>
+          </div>
+        </div>
+      </div>
+      <div class="flex flex-col md:flex-row items-center gap-8 anim-slide-left">
+        <div class="w-full md:w-1/2 bento-card">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center text-black font-bold font-mono" style="background: var(--gold);">03</div>
+            <h3 class="font-garamond text-2xl font-semibold">Risk &amp; Capital Management</h3>
+          </div>
+          <p class="text-gray-400 text-sm leading-relaxed mb-4">Survive to thrive. Professional risk management using Greek letter principles: position sizing with Delta, drawdown control with Theta, and portfolio Greeks for Gamma scalping.</p>
+          <ul class="space-y-2 text-sm text-gray-500">
+            <li class="flex items-center gap-2"><span class="text-gold">❆</span> 1–2% risk per trade discipline</li>
+            <li class="flex items-center gap-2"><span class="text-gold">❆</span> Drawdown recovery protocols</li>
+            <li class="flex items-center gap-2"><span class="text-gold">❆</span> Position sizing calculator (included)</li>
+            <li class="flex items-center gap-2"><span class="text-gold">❆</span> Prop firm challenge strategies</li>
+          </ul>
+        </div>
+        <div class="w-full md:w-1/2 flex items-center justify-center">
+          <div class="glass-card rounded-2xl p-8 text-center w-full max-w-xs">
+            <div class="text-6xl mb-4">⚖️</div>
+            <div class="font-mono text-gold text-sm">WEEKS 7–9</div>
+            <div class="text-white font-garamond text-lg mt-1">Risk Mastery</div>
+            <div class="mt-4 text-gray-500 text-xs">With downloadable tools</div>
+          </div>
+        </div>
+      </div>
+      <div class="flex flex-col md:flex-row-reverse items-center gap-8 anim-slide-right">
+        <div class="w-full md:w-1/2 bento-card">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center text-black font-bold font-mono" style="background: var(--gold);">04</div>
+            <h3 class="font-garamond text-2xl font-semibold">Psychology &amp; Trading Mindset</h3>
+          </div>
+          <p class="text-gray-400 text-sm leading-relaxed mb-4">The edge between amateur and professional is not knowledge — it's psychology. Learn to trade with stoic discipline, manage FOMO/revenge trading, and maintain peak performance.</p>
+          <ul class="space-y-2 text-sm text-gray-500">
+            <li class="flex items-center gap-2"><span class="text-gold">❆</span> Pre-trade mental checklist</li>
+            <li class="flex items-center gap-2"><span class="text-gold">❆</span> Journaling framework (template included)</li>
+            <li class="flex items-center gap-2"><span class="text-gold">❆</span> Stoic trading philosophy</li>
+            <li class="flex items-center gap-2"><span class="text-gold">❆</span> Loss recovery mindset</li>
+          </ul>
+        </div>
+        <div class="w-full md:w-1/2 flex items-center justify-center">
+          <div class="glass-card rounded-2xl p-8 text-center w-full max-w-xs">
+            <div class="text-6xl mb-4">🧠</div>
+            <div class="font-mono text-gold text-sm">WEEKS 10–12</div>
+            <div class="text-white font-garamond text-lg mt-1">Psychology</div>
+            <div class="mt-4 text-gray-500 text-xs">+ 1 live Q&amp;A session</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- TESTIMONIALS -->
+  <section id="results" class="py-24 px-6 max-w-7xl mx-auto">
+    <div class="text-center mb-16 anim-fade-up">
+      <span class="font-mono text-gold text-sm tracking-widest">STUDENT RESULTS</span>
+      <h2 class="font-garamond text-4xl md:text-5xl font-bold mt-3">Real Traders. Real Results.</h2>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="testimonial-card anim-fade-left">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-12 h-12 rounded-full flex items-center justify-center text-black font-bold text-lg" style="background: linear-gradient(135deg, #e9c349, #c9a227);">R</div>
+          <div><div class="font-semibold text-white">Rahul M.</div><div class="text-xs text-gray-500">Mumbai, India</div></div>
+        </div>
+        <div class="text-gold text-sm mb-3">★★★★★</div>
+        <p class="text-gray-400 text-sm leading-relaxed">"I tried 3 other courses before ForexGreek. None of them explained market structure the way this program does. In my first month of live trading I made back 4x the course fee. The Olympian entry model is pure gold."</p>
+        <div class="mt-4 font-mono text-xs text-green-400">+₹47,000 in first month</div>
+      </div>
+      <div class="testimonial-card anim-fade-up">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-12 h-12 rounded-full flex items-center justify-center text-black font-bold text-lg" style="background: linear-gradient(135deg, #e9c349, #c9a227);">P</div>
+          <div><div class="font-semibold text-white">Priya S.</div><div class="text-xs text-gray-500">Bangalore, India</div></div>
+        </div>
+        <div class="text-gold text-sm mb-3">★★★★★</div>
+        <p class="text-gray-400 text-sm leading-relaxed">"As a complete beginner I was terrified of forex. The way the course builds from basics to advanced over 12 weeks is perfect. I passed my first FTMO challenge using the prop firm strategy module. Incredible ROI."</p>
+        <div class="mt-4 font-mono text-xs text-green-400">FTMO $100k account funded</div>
+      </div>
+      <div class="testimonial-card anim-fade-right">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-12 h-12 rounded-full flex items-center justify-center text-black font-bold text-lg" style="background: linear-gradient(135deg, #e9c349, #c9a227);">A</div>
+          <div><div class="font-semibold text-white">Arjun K.</div><div class="text-xs text-gray-500">Dubai, UAE</div></div>
+        </div>
+        <div class="text-gold text-sm mb-3">★★★★★</div>
+        <p class="text-gray-400 text-sm leading-relaxed">"The risk management pillar alone is worth 10x the price. I used to blow accounts every 2 months. After ForexGreek I've been consistently profitable for 8 months straight. The psychology module hit different."</p>
+        <div class="mt-4 font-mono text-xs text-green-400">8 consecutive profitable months</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- PRICING -->
+  <section id="pricing" class="py-24 px-6">
+    <div class="max-w-2xl mx-auto">
+      <div class="text-center mb-12 anim-fade-up">
+        <span class="font-mono text-gold text-sm tracking-widest">INVESTMENT</span>
+        <h2 class="font-garamond text-4xl md:text-5xl font-bold mt-3">Join Olympian Ascension</h2>
+        <p class="text-gray-500 mt-4">One-time investment. Lifetime access. No monthly fees.</p>
+      </div>
+      <div class="bento-card anim-scale-up relative overflow-hidden" style="border-color: rgba(233,195,73,0.4);">
+        <div class="absolute top-0 right-0 bg-gold text-black text-xs font-bold px-4 py-1 rounded-bl-lg font-mono">BEST VALUE</div>
+        <div class="text-center mb-8">
+          <div class="font-garamond text-2xl font-semibold text-white mb-4">Olympian Ascension</div>
+          <div class="flex items-baseline justify-center gap-3">
+            <span class="font-mono text-5xl font-bold text-gold" id="main-price">₹4,999</span>
+            <span class="font-mono text-xl text-gray-500 line-through" id="main-original-price">₹19,999</span>
+          </div>
+          <div class="inline-block bg-green-900/40 text-green-400 text-sm font-bold px-3 py-1 rounded-full mt-3 font-mono" id="discount-badge">75% OFF — Limited Time</div>
+        </div>
+        <ul class="space-y-3 mb-8">
+          <li class="flex items-center gap-3 text-gray-300 text-sm"><span class="text-gold text-lg">❆</span> Full 12-Week Olympian Ascension curriculum</li>
+          <li class="flex items-center gap-3 text-gray-300 text-sm"><span class="text-gold text-lg">❆</span> 40+ hours of HD video content</li>
+          <li class="flex items-center gap-3 text-gray-300 text-sm"><span class="text-gold text-lg">❆</span> Private Olympian Traders community (Telegram)</li>
+          <li class="flex items-center gap-3 text-gray-300 text-sm"><span class="text-gold text-lg">❆</span> Live Q&amp;A sessions (monthly for 1 year)</li>
+          <li class="flex items-center gap-3 text-gray-300 text-sm"><span class="text-gold text-lg">❆</span> Position sizing calculator + trade journal template</li>
+          <li class="flex items-center gap-3 text-gray-300 text-sm"><span class="text-gold text-lg">❆</span> Prop firm challenge strategy module</li>
+          <li class="flex items-center gap-3 text-gray-300 text-sm"><span class="text-gold text-lg">❆</span> Lifetime access + all future updates</li>
+          <li class="flex items-center gap-3 text-gray-300 text-sm"><span class="text-gold text-lg">❆</span> 7-day money-back guarantee</li>
+        </ul>
+        <button onclick="openEnrollModal()" id="pricing-cta" class="btn-gold w-full py-4 rounded-xl text-base font-bold tracking-wide">Enroll Now — Claim Your Spot →</button>
+        <p class="text-center text-gray-600 text-xs mt-4">🔒 Secure checkout via Razorpay · UPI, Cards, Net Banking accepted</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-gold/10 py-12 px-6" style="background:#0d0d14;">
+    <div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: linear-gradient(135deg, #e9c349, #c9a227);"><span class="text-black font-bold font-garamond">Ω</span></div>
+        <span class="font-garamond text-lg text-white">ForexGreek Trading Academy</span>
+      </div>
+      <p class="text-gray-600 text-xs text-center md:text-right max-w-sm">Trading involves substantial risk. Past performance is not indicative of future results. This is educational content only — not financial advice.</p>
+    </div>
+    <div class="text-center mt-8 text-gray-700 text-xs">© 2024 ForexGreek Trading Academy. All rights reserved.</div>
+  </footer>
+
+</div><!-- /#main-site -->
+
+<!-- URGENCY MODAL -->
+<div id="urgency-modal" role="dialog" aria-modal="true" aria-labelledby="urgency-title">
+  <div class="glass-card rounded-2xl p-8 max-w-md w-full mx-4 relative" style="border-color: rgba(233,195,73,0.3);">
+    <div class="flex items-center justify-between mb-6">
+      <span class="inline-block bg-gold/10 border border-gold/30 text-gold text-xs font-mono px-3 py-1 rounded-full">⚡ Critical Opportunity</span>
+      <button onclick="closeUrgencyModal()" class="text-gray-600 hover:text-gray-300 transition-colors text-xl leading-none">×</button>
+    </div>
+    <h2 id="urgency-title" class="font-garamond text-3xl font-bold text-white mb-2">Olympian Ascension</h2>
+    <p class="text-gray-500 text-sm mb-6">Lock in your founding member price before this offer expires</p>
+    <div class="flex items-center gap-3 mb-6">
+      <span class="font-mono text-4xl font-bold text-gold urgency-offer-price">₹4,999</span>
+      <div>
+        <div class="font-mono text-lg text-gray-500 line-through">₹19,999</div>
+        <div class="bg-green-900/50 text-green-400 text-xs font-bold px-2 py-0.5 rounded font-mono">75% OFF</div>
+      </div>
+    </div>
+    <div class="bg-black/40 rounded-xl p-4 mb-6 text-center">
+      <div class="text-gray-500 text-xs font-mono mb-2">OFFER EXPIRES IN</div>
+      <div id="modal-countdown" class="countdown-digit">05:00</div>
+      <div id="modal-expired-msg" class="text-red-400 text-sm font-mono mt-2 hidden">⚠ Offer Expired</div>
+    </div>
+    <button id="urgency-cta" onclick="closeUrgencyModal(); openEnrollModal();" class="btn-gold w-full py-4 rounded-xl font-bold text-base">Claim Offer &amp; Enroll Now →</button>
+    <p class="text-center text-gray-700 text-xs mt-3">No exceptions after expiration</p>
+  </div>
+</div>
+
+<!-- ENROLL MODAL -->
+<div id="enroll-modal" role="dialog" aria-modal="true" aria-labelledby="enroll-title">
+  <div class="glass-card rounded-2xl p-8 max-w-lg w-full relative" style="border-color: rgba(233,195,73,0.25);">
+    <button onclick="closeEnrollModal()" class="absolute top-4 right-4 text-gray-600 hover:text-gray-300 text-2xl leading-none transition-colors">×</button>
+    <div class="text-center mb-6">
+      <div class="font-garamond text-xl font-semibold text-white">Enroll in Olympian Ascension</div>
+      <div class="flex items-center justify-center gap-2 mt-2">
+        <span class="font-mono text-2xl font-bold text-gold enroll-price-display">₹4,999</span>
+        <span class="font-mono text-base text-gray-500 line-through">₹19,999</span>
+      </div>
+    </div>
+    <form id="enroll-form" novalidate>
+      <div class="mb-4">
+        <label class="block text-sm text-gray-400 mb-1.5">Full Name *</label>
+        <input type="text" id="f-name" name="name" class="fg-input" placeholder="Your full name" autocomplete="name" />
+        <div class="field-error" id="err-name">Please enter your full name (min 2 characters)</div>
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm text-gray-400 mb-1.5">Email / Gmail *</label>
+        <input type="email" id="f-email" name="email" class="fg-input" placeholder="your@email.com" autocomplete="email" />
+        <div class="field-error" id="err-email">Please enter a valid email address</div>
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm text-gray-400 mb-1.5">Phone Number *</label>
+        <div class="flex gap-2">
+          <span class="fg-input w-20 flex-shrink-0 text-gray-500 text-center" style="cursor:default;">+91</span>
+          <input type="tel" id="f-phone" name="phone" class="fg-input flex-1" placeholder="9876543210" autocomplete="tel" maxlength="10" />
+        </div>
+        <div class="field-error" id="err-phone">Enter a valid 10-digit Indian phone number (starting with 6-9)</div>
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm text-gray-400 mb-1.5">Location / City *</label>
+        <input type="text" id="f-location" name="location" class="fg-input" placeholder="Mumbai, Delhi, Bangalore..." autocomplete="address-level2" />
+        <div class="field-error" id="err-location">Please enter your city</div>
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm text-gray-400 mb-1.5">Password *</label>
+        <div class="relative">
+          <input type="password" id="f-password" name="password" class="fg-input pr-12" placeholder="Min 8 characters" autocomplete="new-password" />
+          <button type="button" onclick="togglePasswordVisibility('f-password', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 text-xs font-mono">SHOW</button>
+        </div>
+        <div class="field-error" id="err-password">Password must be at least 8 characters</div>
+      </div>
+      <div class="mb-6">
+        <label class="block text-sm text-gray-400 mb-1.5">Confirm Password *</label>
+        <input type="password" id="f-confirm" name="confirmPassword" class="fg-input" placeholder="Repeat your password" autocomplete="new-password" />
+        <div class="field-error" id="err-confirm">Passwords do not match</div>
+      </div>
+      <button type="submit" id="enroll-submit-btn" class="btn-gold w-full py-4 rounded-xl font-bold text-base tracking-wide">ENROLL NOW</button>
+      <div id="enroll-error-global" class="text-red-400 text-sm text-center mt-3 hidden"></div>
+    </form>
+  </div>
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+(function() {
+  const gate = document.getElementById('video-gate');
+  const video = document.getElementById('gate-video');
+  const progressBar = document.getElementById('gate-progress-bar');
+  const unmuteBtn = document.getElementById('gate-unmute');
+  const tapBtn = document.getElementById('gate-tap-btn');
+  const mainSite = document.getElementById('main-site');
+
+  if (sessionStorage.getItem('fg_video_watched') === 'true') {
+    gate.remove();
+    document.body.style.overflow = 'auto';
+    mainSite.classList.add('revealed');
+    return;
+  }
+
+  document.body.style.overflow = 'hidden';
+
+  function revealSite() {
+    sessionStorage.setItem('fg_video_watched', 'true');
+    gate.style.transition = 'opacity 1.2s ease';
+    gate.style.opacity = '0';
+    setTimeout(() => {
+      gate.remove();
+      document.body.style.overflow = 'auto';
+      mainSite.classList.add('revealed');
+      setTimeout(showUrgencyModal, 1500);
+    }, 1200);
+  }
+
+  video.addEventListener('timeupdate', () => {
+    if (video.duration) progressBar.style.width = (video.currentTime / video.duration * 100) + '%';
+  });
+  video.addEventListener('ended', revealSite);
+  video.addEventListener('error', () => {
+    tapBtn.style.display = 'block';
+    tapBtn.textContent = '▶ Tap to Watch Intro';
+    tapBtn.onclick = () => { video.play().catch(() => {}); };
+    video.addEventListener('ended', revealSite);
+  });
+
+  const playPromise = video.play();
+  if (playPromise !== undefined) {
+    playPromise.catch(() => {
+      tapBtn.style.display = 'block';
+      tapBtn.onclick = () => { tapBtn.style.display = 'none'; video.play(); };
+    });
+  }
+
+  unmuteBtn.addEventListener('click', () => {
+    video.muted = !video.muted;
+    unmuteBtn.textContent = video.muted ? '🔇 Unmute' : '🔊 Mute';
+  });
+})();
+
+const TIMER_DURATION_MS = 5 * 60 * 1000;
+const OFFER_PRICE = 4999;
+const ORIGINAL_PRICE = 19999;
+
+function getTimerMs() {
+  const start = sessionStorage.getItem('fg_timer_start');
+  if (!start) return TIMER_DURATION_MS;
+  return Math.max(0, TIMER_DURATION_MS - (Date.now() - parseInt(start, 10)));
+}
+
+function initTimer() {
+  if (!sessionStorage.getItem('fg_timer_start')) {
+    sessionStorage.setItem('fg_timer_start', Date.now().toString());
+  }
+}
+
+function formatCountdown(ms) {
+  const s = Math.floor(ms / 1000);
+  return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+}
+
+let timerExpired = false;
+let timerInterval = null;
+
+function startCountdownTick() {
+  initTimer();
+  timerInterval = setInterval(() => {
+    const remaining = getTimerMs();
+    const formatted = formatCountdown(remaining);
+    const modalCd = document.getElementById('modal-countdown');
+    if (modalCd) modalCd.textContent = formatted;
+    const barCd = document.getElementById('bar-countdown');
+    if (barCd) barCd.textContent = formatted;
+    if (remaining <= 0 && !timerExpired) { timerExpired = true; onTimerExpired(); }
+  }, 1000);
+}
+
+function onTimerExpired() {
+  const modalCd = document.getElementById('modal-countdown');
+  if (modalCd) { modalCd.classList.add('expired'); modalCd.textContent = '00:00'; }
+  const expiredMsg = document.getElementById('modal-expired-msg');
+  if (expiredMsg) expiredMsg.classList.remove('hidden');
+  const urgencyCta = document.getElementById('urgency-cta');
+  if (urgencyCta) { urgencyCta.textContent = `Enroll for ₹${ORIGINAL_PRICE.toLocaleString('en-IN')} →`; urgencyCta.classList.add('btn-expired'); urgencyCta.classList.remove('btn-gold'); }
+  document.querySelectorAll('.urgency-offer-price').forEach(el => { el.textContent = `₹${ORIGINAL_PRICE.toLocaleString('en-IN')}`; el.style.color = '#ef4444'; });
+  const mainPrice = document.getElementById('main-price');
+  if (mainPrice) mainPrice.textContent = `₹${ORIGINAL_PRICE.toLocaleString('en-IN')}`;
+  const badge = document.getElementById('discount-badge');
+  if (badge) { badge.textContent = 'Full Price'; badge.style.background = 'rgba(239,68,68,0.2)'; badge.style.color = '#f87171'; }
+  const barText = document.getElementById('bar-text');
+  if (barText) barText.innerHTML = `⚠ <span style="color:#ef4444;font-weight:bold;">Offer Expired — Course now ₹${ORIGINAL_PRICE.toLocaleString('en-IN')}</span>`;
+  const pricingCta = document.getElementById('pricing-cta');
+  if (pricingCta) pricingCta.textContent = `Enroll Now — ₹${ORIGINAL_PRICE.toLocaleString('en-IN')} →`;
+  updateEnrollPriceDisplay();
+}
+
+function updateEnrollPriceDisplay() {
+  const price = timerExpired ? ORIGINAL_PRICE : OFFER_PRICE;
+  document.querySelectorAll('.enroll-price-display').forEach(el => {
+    el.textContent = `₹${price.toLocaleString('en-IN')}`;
+    if (timerExpired) el.style.color = '#ef4444';
+  });
+}
+
+function showUrgencyModal() {
+  initTimer();
+  if (getTimerMs() <= 0) { timerExpired = true; onTimerExpired(); }
+  startCountdownTick();
+  document.getElementById('urgency-modal').classList.add('open');
+}
+
+function closeUrgencyModal() {
+  document.getElementById('urgency-modal').classList.remove('open');
+  document.getElementById('urgency-bar').style.display = 'block';
+  document.getElementById('site-header').style.top = '36px';
+}
+
+function openEnrollModal() {
+  updateEnrollPriceDisplay();
+  document.getElementById('enroll-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeEnrollModal() {
+  document.getElementById('enroll-modal').classList.remove('open');
+  document.body.style.overflow = 'auto';
+}
+
+document.getElementById('enroll-modal').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('enroll-modal')) closeEnrollModal();
+});
+
+function showError(id, show) {
+  document.getElementById(id).classList.toggle('show', show);
+}
+
+function validateForm() {
+  let valid = true;
+  const name = document.getElementById('f-name').value.trim();
+  if (name.length < 2) { showError('err-name', true); valid = false; } else showError('err-name', false);
+  const email = document.getElementById('f-email').value.trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showError('err-email', true); valid = false; } else showError('err-email', false);
+  const phone = document.getElementById('f-phone').value.trim();
+  if (!/^[6-9]\d{9}$/.test(phone)) { showError('err-phone', true); valid = false; } else showError('err-phone', false);
+  const location = document.getElementById('f-location').value.trim();
+  if (!location) { showError('err-location', true); valid = false; } else showError('err-location', false);
+  const password = document.getElementById('f-password').value;
+  if (password.length < 8) { showError('err-password', true); valid = false; } else showError('err-password', false);
+  const confirm = document.getElementById('f-confirm').value;
+  if (confirm !== password) { showError('err-confirm', true); valid = false; } else showError('err-confirm', false);
+  return valid;
+}
+
+document.getElementById('enroll-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!validateForm()) return;
+  const btn = document.getElementById('enroll-submit-btn');
+  btn.innerHTML = '<span class="spinner"></span>';
+  btn.disabled = true;
+  const globalErr = document.getElementById('enroll-error-global');
+  globalErr.classList.add('hidden');
+  const payload = {
+    name: document.getElementById('f-name').value.trim(),
+    email: document.getElementById('f-email').value.trim(),
+    phone: document.getElementById('f-phone').value.trim(),
+    location: document.getElementById('f-location').value.trim(),
+    password: document.getElementById('f-password').value,
+    confirmPassword: document.getElementById('f-confirm').value,
+    timerExpired,
+  };
+  try {
+    const res = await fetch('/api/enroll', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    const data = await res.json();
+    if (!res.ok) {
+      globalErr.textContent = data.errors ? data.errors.map(e => e.msg).join(' | ') : (data.error || 'Enrollment failed.');
+      globalErr.classList.remove('hidden');
+      btn.innerHTML = 'ENROLL NOW'; btn.disabled = false;
+      return;
+    }
+    openRazorpay(data);
+  } catch (err) {
+    globalErr.textContent = 'Network error. Please check your connection.';
+    globalErr.classList.remove('hidden');
+    btn.innerHTML = 'ENROLL NOW'; btn.disabled = false;
+  }
+});
+
+function openRazorpay(orderData) {
+  const options = {
+    key: orderData.razorpay_key_id,
+    amount: orderData.amount,
+    currency: 'INR',
+    name: 'ForexGreek Trading Academy',
+    description: 'Olympian Ascension Course',
+    order_id: orderData.razorpay_order_id,
+    handler: async (response) => {
+      try {
+        const res = await fetch('/api/payment/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ razorpay_payment_id: response.razorpay_payment_id, razorpay_order_id: response.razorpay_order_id, razorpay_signature: response.razorpay_signature, user_id: orderData.user_id }),
+        });
+        const result = await res.json();
+        if (result.success) window.location.href = result.redirect || '/success';
+      } catch (e) { alert('Payment verification error. Please contact support.'); }
+    },
+    prefill: { name: orderData.name, email: orderData.email, contact: '+91' + orderData.phone },
+    modal: { ondismiss: async () => { await fetch('/api/payment/failed', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: orderData.user_id, razorpay_order_id: orderData.razorpay_order_id }) }); } },
+    theme: { color: '#e9c349' },
+  };
+  new Razorpay(options).open();
+  closeEnrollModal();
+}
+
+function setupScrollAnimations() {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        const delay = entry.target.style.getPropertyValue('--delay') || '0ms';
+        setTimeout(() => entry.target.classList.add('anim-visible'), parseInt(delay) || 0);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.anim-fade-up, .anim-slide-left, .anim-slide-right, .anim-scale-up, .anim-fade-left, .anim-fade-right').forEach(el => observer.observe(el));
+  document.querySelectorAll('#bento-grid .bento-card').forEach((card, i) => { card.style.setProperty('--delay', (i * 120) + 'ms'); observer.observe(card); });
+}
+
+function setupParallax() {
+  const parallax = document.getElementById('hero-parallax');
+  if (!parallax) return;
+  window.addEventListener('scroll', () => { parallax.style.transform = `translateY(${window.scrollY * 0.35}px)`; }, { passive: true });
+}
+
+function setupStickyHeader() {
+  const header = document.getElementById('site-header');
+  window.addEventListener('scroll', () => { header.classList.toggle('scrolled', window.scrollY > 60); }, { passive: true });
+}
+
+function buildTicker() {
+  const data = {
+    EURUSD: { price: '1.0842', change: '+0.0012', up: true },
+    GBPUSD: { price: '1.2734', change: '-0.0023', up: false },
+    USDJPY: { price: '157.82', change: '+0.34', up: true },
+    AUDUSD: { price: '0.6512', change: '+0.0008', up: true },
+    USDCHF: { price: '0.9023', change: '-0.0015', up: false },
+    USDCAD: { price: '1.3654', change: '+0.0041', up: true },
+    NZDUSD: { price: '0.5987', change: '-0.0006', up: false },
+    XAUUSD: { price: '2341.50', change: '+12.30', up: true },
+  };
+  document.querySelectorAll('.ticker-item').forEach(el => {
+    const d = data[el.dataset.pair];
+    if (!d) return;
+    el.innerHTML = `<span style="color:#9ca3af;font-size:12px;font-family:'JetBrains Mono',monospace;margin-right:32px;"><span style="color:#e8e6e0;font-weight:600;">${el.dataset.pair}</span><span style="margin:0 6px;">${d.price}</span><span style="color:${d.up ? '#4ade80' : '#f87171'};">${d.change}</span></span>`;
+  });
+}
+
+function togglePasswordVisibility(inputId, btn) {
+  const input = document.getElementById(inputId);
+  input.type = input.type === 'password' ? 'text' : 'password';
+  btn.textContent = input.type === 'password' ? 'SHOW' : 'HIDE';
+}
+
+function toggleMobileMenu() {
+  document.getElementById('mobile-menu').classList.toggle('open');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  buildTicker();
+  setupScrollAnimations();
+  setupParallax();
+  setupStickyHeader();
+  if (sessionStorage.getItem('fg_video_watched') === 'true' && sessionStorage.getItem('fg_timer_start')) {
+    const remaining = getTimerMs();
+    if (remaining <= 0) { timerExpired = true; onTimerExpired(); }
+    startCountdownTick();
+    document.getElementById('urgency-bar').style.display = 'block';
+    document.getElementById('site-header').style.top = '36px';
+  }
+});
+</script>
+</body>
+</html>

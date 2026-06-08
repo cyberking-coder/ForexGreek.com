@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Complete Payment — ForexGreek Trading Academy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;600;700&family=Geist:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root { --gold: #e9c349; }
+    body { font-family: 'Geist', sans-serif; background: #0a0a0f; color: #e8e6e0; }
+    .glass-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(233,195,73,0.15); backdrop-filter: blur(16px); }
+    .btn-gold { background: linear-gradient(135deg, #f2d675, #c9a227); color: #0a0a0f; font-weight: 700; transition: transform 0.15s, box-shadow 0.15s; }
+    .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(233,195,73,0.35); }
+    .countdown-pay { font-family: 'JetBrains Mono', monospace; font-size: 2.5rem; font-weight: 700; color: var(--gold); }
+    .countdown-pay.warning { color: #f59e0b; }
+    .countdown-pay.danger { color: #ef4444; }
+    .spinner { width: 22px; height: 22px; border: 2px solid rgba(0,0,0,0.3); border-top-color: #000; border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-6">
+  <div class="w-full max-w-md">
+    <div class="text-center mb-8">
+      <a href="/" class="inline-flex items-center gap-2">
+        <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background: linear-gradient(135deg, #e9c349, #c9a227);">
+          <span class="text-black font-bold text-lg" style="font-family:'EB Garamond',serif;">Ω</span>
+        </div>
+        <span class="font-bold text-white text-xl" style="font-family:'EB Garamond',serif;">ForexGreek</span>
+      </a>
+    </div>
+    <div class="glass-card rounded-2xl p-8">
+      <div id="state-loading" class="text-center py-8">
+        <div class="spinner mx-auto mb-4" style="width:32px;height:32px;border-top-color:var(--gold);"></div>
+        <p class="text-gray-400">Loading your order...</p>
+      </div>
+      <div id="state-ready" class="hidden">
+        <div class="text-center mb-6">
+          <div style="font-family:'EB Garamond',serif;" class="text-2xl font-bold text-white mb-1">Complete Your Enrollment</div>
+          <p class="text-gray-500 text-sm">Your spot is reserved. Complete payment to confirm.</p>
+        </div>
+        <div class="bg-black/30 rounded-xl p-4 mb-6">
+          <div class="flex justify-between text-sm text-gray-400 mb-2"><span>Course</span><span class="text-white font-semibold">Olympian Ascension</span></div>
+          <div class="flex justify-between text-sm text-gray-400 mb-2"><span>Student</span><span class="text-white" id="pay-student-name">—</span></div>
+          <div class="flex justify-between text-sm text-gray-400 border-t border-white/10 pt-2 mt-2"><span>Amount</span><span class="font-mono font-bold text-lg" style="color:var(--gold);" id="pay-amount">—</span></div>
+        </div>
+        <div class="text-center mb-6">
+          <div class="text-gray-500 text-xs font-mono mb-2">OFFER EXPIRES IN</div>
+          <div id="pay-countdown" class="countdown-pay">05:00</div>
+          <p class="text-gray-600 text-xs mt-1">Complete payment now to lock in your price.</p>
+        </div>
+        <button id="pay-btn" class="btn-gold w-full py-4 rounded-xl text-base font-bold tracking-wide">Pay Securely via Razorpay →</button>
+        <p class="text-center text-gray-700 text-xs mt-3">🔒 256-bit SSL · UPI · Cards · Net Banking</p>
+      </div>
+      <div id="state-expired" class="hidden text-center py-8">
+        <div class="text-4xl mb-4">⏰</div>
+        <h2 class="text-red-400 font-bold text-xl mb-2" style="font-family:'EB Garamond',serif;">Payment Time Expired</h2>
+        <p class="text-gray-500 text-sm mb-6">Your reserved spot has been released. Restart enrollment from the main page.</p>
+        <a href="/" class="btn-gold inline-block px-6 py-3 rounded-xl text-sm font-bold">← Return to Course Page</a>
+      </div>
+      <div id="state-error" class="hidden text-center py-8">
+        <div class="text-4xl mb-4">⚠️</div>
+        <h2 class="text-red-400 font-bold text-xl mb-2" style="font-family:'EB Garamond',serif;">Something went wrong</h2>
+        <p class="text-gray-500 text-sm mb-2" id="error-msg">Invalid payment session.</p>
+        <a href="/" class="btn-gold inline-block px-6 py-3 rounded-xl text-sm font-bold mt-4">← Return to Course Page</a>
+      </div>
+    </div>
+  </div>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const userId = params.get('user_id');
+    const PAY_TIMEOUT_MS = 5 * 60 * 1000;
+    let payTimerInterval = null, payStartTime = null, orderData = null;
+
+    function showState(state) {
+      ['loading','ready','expired','error'].forEach(s => document.getElementById('state-'+s).classList.toggle('hidden', s !== state));
+    }
+    function formatMs(ms) {
+      const s = Math.max(0, Math.floor(ms/1000));
+      return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+    }
+    async function markFailed() {
+      clearInterval(payTimerInterval);
+      showState('expired');
+      if (userId) await fetch('/api/payment/failed', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ user_id: userId, razorpay_order_id: orderData?.razorpay_order_id }) }).catch(()=>{});
+      setTimeout(() => { window.location.href = '/'; }, 3000);
+    }
+    function startPayTimer() {
+      payStartTime = Date.now();
+      const cdEl = document.getElementById('pay-countdown');
+      payTimerInterval = setInterval(() => {
+        const remaining = PAY_TIMEOUT_MS - (Date.now() - payStartTime);
+        if (remaining <= 0) { clearInterval(payTimerInterval); cdEl.textContent='00:00'; cdEl.classList.add('danger'); markFailed(); return; }
+        cdEl.textContent = formatMs(remaining);
+        cdEl.className = remaining < 60000 ? 'countdown-pay danger' : remaining < 120000 ? 'countdown-pay warning' : 'countdown-pay';
+      }, 1000);
+    }
+    function openRazorpay() {
+      new Razorpay({
+        key: orderData.razorpay_key_id, amount: orderData.amount, currency: 'INR',
+        name: 'ForexGreek Trading Academy', description: 'Olympian Ascension Course',
+        order_id: orderData.razorpay_order_id,
+        handler: async (response) => {
+          document.getElementById('pay-btn').innerHTML = '<span class="spinner"></span> Verifying...';
+          document.getElementById('pay-btn').disabled = true;
+          clearInterval(payTimerInterval);
+          try {
+            const res = await fetch('/api/payment/verify', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ razorpay_payment_id: response.razorpay_payment_id, razorpay_order_id: response.razorpay_order_id, razorpay_signature: response.razorpay_signature, user_id: userId }) });
+            const result = await res.json();
+            if (result.success) window.location.href = result.redirect || '/success';
+            else { showState('error'); document.getElementById('error-msg').textContent = 'Verification failed. Contact support.'; }
+          } catch(e) { showState('error'); document.getElementById('error-msg').textContent = 'Network error during verification.'; }
+        },
+        prefill: { name: orderData.name, email: orderData.email, contact: '+91'+orderData.phone },
+        modal: { ondismiss: async () => { await fetch('/api/payment/failed', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ user_id: userId, razorpay_order_id: orderData.razorpay_order_id }) }).catch(()=>{}); } },
+        theme: { color: '#e9c349' },
+      }).open();
+    }
+    async function init() {
+      if (!userId) { showState('error'); document.getElementById('error-msg').textContent = 'No enrollment session found.'; return; }
+      try {
+        const res = await fetch(`/api/payment/order?user_id=${userId}`);
+        if (!res.ok) throw new Error('Order not found');
+        orderData = await res.json();
+        document.getElementById('pay-student-name').textContent = orderData.name;
+        document.getElementById('pay-amount').textContent = '₹' + (orderData.amount/100).toLocaleString('en-IN');
+        showState('ready');
+        startPayTimer();
+        document.getElementById('pay-btn').addEventListener('click', openRazorpay);
+      } catch(err) { showState('error'); document.getElementById('error-msg').textContent = err.message || 'Invalid session.'; }
+    }
+    init();
+  </script>
+</body>
+</html>
