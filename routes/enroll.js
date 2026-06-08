@@ -5,10 +5,12 @@ const bcrypt = require('bcrypt');
 const Razorpay = require('razorpay');
 const pool = require('../services/db');
 
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET,
-});
+function getRazorpay() {
+  return new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET,
+  });
+}
 
 const validators = [
   body('name').trim().isLength({ min: 2 }).withMessage('Name must be at least 2 characters'),
@@ -53,7 +55,7 @@ router.post('/', validators, async (req, res) => {
     const user_id = result.insertId;
 
     // Create Razorpay order
-    const order = await razorpay.orders.create({
+    const order = await getRazorpay().orders.create({
       amount: planPrice * 100,
       currency: 'INR',
       receipt: `fg_${user_id}_${Date.now()}`,
