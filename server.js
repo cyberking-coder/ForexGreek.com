@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 3000;
 // CORS
 app.use(cors({
   origin: process.env.NODE_ENV === 'production'
-    ? (process.env.ALLOWED_ORIGIN || 'https://forexgreek.com')
+    ? (process.env.ALLOWED_ORIGIN || '*')
     : true,
   credentials: true,
 }));
@@ -37,21 +37,29 @@ app.use(session({
 
 // Rate limiting on enroll endpoint
 const enrollLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
+  windowMs: 60 * 60 * 1000,
   max: 5,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many enrollment attempts from this IP. Please try again in an hour.' },
 });
 
-// Static files
+// Serve /public static assets (intro-video.mp4, etc.)
 app.use(express.static(path.join(__dirname, 'public')));
 
 // API routes
 app.use('/api/enroll', enrollLimiter, enrollRouter);
 app.use('/api/payment', paymentRouter);
 
-// Page routes
+// Pricing config endpoint (used by Vercel healthcheck too)
+app.get('/api/config', (req, res) => {
+  res.json({
+    offerPrice: parseInt(process.env.COURSE_OFFER_PRICE || '4999'),
+    originalPrice: parseInt(process.env.COURSE_ORIGINAL_PRICE || '19999'),
+  });
+});
+
+// HTML page routes — must come after API routes
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
@@ -64,14 +72,11 @@ app.get('/success', (req, res) => {
   res.sendFile(path.join(__dirname, 'success.html'));
 });
 
-// API: get pricing config for frontend
-app.get('/api/config', (req, res) => {
-  res.json({
-    offerPrice: parseInt(process.env.COURSE_OFFER_PRICE || '4999'),
-    originalPrice: parseInt(process.env.COURSE_ORIGINAL_PRICE || '19999'),
+// Only bind port when running directly (not imported by Vercel)
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`[ForexGreek] Server running on http://localhost:${PORT}`);
   });
-});
+}
 
-app.listen(PORT, () => {
-  console.log(`[ForexGreek] Server running on http://localhost:${PORT}`);
-});
+module.exports = app;
