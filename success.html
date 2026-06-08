@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Welcome to ForexGreek — Enrollment Confirmed!</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Geist:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root { --gold: #e9c349; }
+    body { font-family: 'Geist', sans-serif; background: #0a0a0f; color: #e8e6e0; }
+    .glass-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(233,195,73,0.2); backdrop-filter: blur(16px); }
+    .hero-bg {
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(233,195,73,0.1) 0%, transparent 70%),
+                  linear-gradient(180deg, #0d0d14 0%, #0a0a0f 100%);
+    }
+    .text-gold-gradient {
+      background: linear-gradient(135deg, #f2d675 0%, #e9c349 50%, #c9a227 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    @keyframes confettiFall {
+      0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+    }
+    .confetti-piece {
+      position: fixed;
+      top: -10px;
+      width: 10px; height: 10px;
+      border-radius: 2px;
+      animation: confettiFall linear forwards;
+      pointer-events: none;
+    }
+    @keyframes checkPop {
+      0% { transform: scale(0); opacity: 0; }
+      60% { transform: scale(1.2); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .check-icon { animation: checkPop 0.6s 0.3s ease both; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-up { animation: fadeUp 0.6s ease both; }
+    .btn-gold { background: linear-gradient(135deg, #f2d675, #c9a227); color: #0a0a0f; font-weight: 700; transition: transform 0.15s, box-shadow 0.15s; }
+    .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(233,195,73,0.35); }
+  </style>
+</head>
+<body class="min-h-screen hero-bg flex flex-col items-center justify-center p-6 overflow-hidden">
+
+  <div class="w-full max-w-lg text-center">
+
+    <!-- Logo -->
+    <div class="inline-flex items-center gap-2 mb-8 fade-up" style="animation-delay:0s;">
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(135deg, #e9c349, #c9a227);">
+        <span class="text-black font-bold text-xl" style="font-family:'EB Garamond',serif;">Ω</span>
+      </div>
+      <span class="font-bold text-white text-2xl" style="font-family:'EB Garamond',serif;">ForexGreek</span>
+    </div>
+
+    <!-- Check icon -->
+    <div class="check-icon w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6" style="background: linear-gradient(135deg, rgba(74,222,128,0.2), rgba(74,222,128,0.05)); border: 2px solid rgba(74,222,128,0.4);">
+      <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+    </div>
+
+    <!-- Headline -->
+    <h1 class="fade-up font-garamond text-4xl md:text-5xl font-bold mb-4 leading-tight" style="font-family:'EB Garamond',serif; animation-delay:0.2s;">
+      Welcome to<br/><span class="text-gold-gradient">Olympian Ascension</span>
+    </h1>
+
+    <p class="fade-up text-gray-400 text-lg mb-8" style="animation-delay:0.35s;">
+      Your enrollment is confirmed. You've taken the first step toward mastering the markets.
+    </p>
+
+    <!-- Glass card: next steps -->
+    <div class="glass-card rounded-2xl p-8 mb-8 fade-up text-left" style="animation-delay:0.5s;">
+      <h2 class="font-semibold text-white mb-5 text-lg" style="font-family:'EB Garamond',serif;">What Happens Next</h2>
+      <div class="space-y-4">
+        <div class="flex items-start gap-4">
+          <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 font-mono text-sm font-bold text-black" style="background: var(--gold); margin-top:2px;">1</div>
+          <div>
+            <div class="text-white font-medium text-sm">Check Your Email</div>
+            <div class="text-gray-500 text-sm mt-0.5">Login credentials and course access link sent within 5 minutes.</div>
+          </div>
+        </div>
+        <div class="flex items-start gap-4">
+          <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 font-mono text-sm font-bold text-black" style="background: var(--gold); margin-top:2px;">2</div>
+          <div>
+            <div class="text-white font-medium text-sm">Join the Olympians Community</div>
+            <div class="text-gray-500 text-sm mt-0.5">A WhatsApp/Telegram invite will be sent. Connect with 2,400+ fellow traders.</div>
+          </div>
+        </div>
+        <div class="flex items-start gap-4">
+          <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 font-mono text-sm font-bold text-black" style="background: var(--gold); margin-top:2px;">3</div>
+          <div>
+            <div class="text-white font-medium text-sm">Start Module 1 Today</div>
+            <div class="text-gray-500 text-sm mt-0.5">Market Structure Mastery — 3 hours of content ready to stream immediately.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Social share hint -->
+    <div class="fade-up" style="animation-delay:0.65s;">
+      <p class="text-gray-600 text-sm mb-4">Share your enrollment with the trading community:</p>
+      <div class="flex gap-3 justify-center">
+        <a href="https://twitter.com/intent/tweet?text=Just+enrolled+in+%40ForexGreek+Olympian+Ascension+%F0%9F%8F%9B%EF%B8%8F+Time+to+trade+like+the+gods.+%23ForexGreek+%23Forex" target="_blank" rel="noopener" class="glass-card px-4 py-2 rounded-lg text-sm text-gray-300 hover:text-gold transition-colors" style="border-color:rgba(233,195,73,0.2);">
+          Twitter/X
+        </a>
+        <a href="https://wa.me/?text=Just+enrolled+in+ForexGreek+Olympian+Ascension+%F0%9F%8F%9B%EF%B8%8F+Trade+like+the+gods.+Check+it+out!" target="_blank" rel="noopener" class="glass-card px-4 py-2 rounded-lg text-sm text-gray-300 hover:text-gold transition-colors" style="border-color:rgba(233,195,73,0.2);">
+          WhatsApp
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Confetti
+    function spawnConfetti() {
+      const colors = ['#e9c349', '#f2d675', '#4ade80', '#60a5fa', '#f472b6', '#a78bfa'];
+      for (let i = 0; i < 60; i++) {
+        setTimeout(() => {
+          const el = document.createElement('div');
+          el.className = 'confetti-piece';
+          el.style.left = Math.random() * 100 + 'vw';
+          el.style.background = colors[Math.floor(Math.random() * colors.length)];
+          el.style.animationDuration = (2.5 + Math.random() * 2) + 's';
+          el.style.animationDelay = '0s';
+          el.style.width = (6 + Math.random() * 8) + 'px';
+          el.style.height = (6 + Math.random() * 8) + 'px';
+          document.body.appendChild(el);
+          setTimeout(() => el.remove(), 5000);
+        }, i * 60);
+      }
+    }
+    spawnConfetti();
+    // Clear any urgency timer so it doesn't carry to a new visit
+    sessionStorage.removeItem('fg_timer_start');
+  </script>
+</body>
+</html>
