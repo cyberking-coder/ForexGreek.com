@@ -26,53 +26,33 @@ const validators = [
 
 router.post('/', validators, async (req, res) => {
   const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(422).json({ errors: errors.array() });
-  }
+  if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
 
   const { name, email, phone, location, password } = req.body;
-
-  // Determine price based on timer state sent from client
   const offerPrice = parseInt(process.env.COURSE_OFFER_PRICE || '4999');
   const originalPrice = parseInt(process.env.COURSE_ORIGINAL_PRICE || '19999');
   const planPrice = req.body.timerExpired === true ? originalPrice : offerPrice;
 
   try {
-    // Check duplicate email
     const [existing] = await pool.query('SELECT id FROM students WHERE email = ?', [email]);
-    if (existing.length > 0) {
-      return res.status(409).json({ error: 'Email already registered. Please log in or use a different email.' });
-    }
+    if (existing.length > 0) return res.status(409).json({ error: 'Email already registered.' });
 
     const password_hash = await bcrypt.hash(password, 12);
-
-    // Insert student
     const [result] = await pool.query(
-      `INSERT INTO students (name, email, phone, location, password_hash, plan_price)
-       VALUES (?, ?, ?, ?, ?, ?)`,
+      'INSERT INTO students (name, email, phone, location, password_hash, plan_price) VALUES (?, ?, ?, ?, ?, ?)',
       [name, email, phone, location, password_hash, planPrice]
     );
     const user_id = result.insertId;
 
-    // Create Razorpay order
     const order = await getRazorpay().orders.create({
       amount: planPrice * 100,
       currency: 'INR',
       receipt: `fg_${user_id}_${Date.now()}`,
     });
 
-    // Store order id
     await pool.query('UPDATE students SET razorpay_order_id = ? WHERE id = ?', [order.id, user_id]);
 
-    return res.json({
-      user_id,
-      razorpay_order_id: order.id,
-      razorpay_key_id: process.env.RAZORPAY_KEY_ID,
-      amount: order.amount,
-      name,
-      email,
-      phone,
-    });
+    return res.json({ user_id, razorpay_order_id: order.id, razorpay_key_id: process.env.RAZORPAY_KEY_ID, amount: order.amount, name, email, phone });
   } catch (err) {
     console.error('[Enroll] Error:', err.message);
     return res.status(500).json({ error: 'Server error. Please try again.' });

@@ -57,9 +57,7 @@ app.get('/payment', (req, res) => res.sendFile(path.join(__dirname, 'payment.htm
 app.get('/success', (req, res) => res.sendFile(path.join(__dirname, 'success.html')));
 
 if (require.main === module) {
-  app.listen(PORT, () => {
-    console.log(`[ForexGreek] Server running on http://localhost:${PORT}`);
-  });
+  app.listen(PORT, () => console.log(`[ForexGreek] Server running on http://localhost:${PORT}`));
 }
 
 module.exports = app;
