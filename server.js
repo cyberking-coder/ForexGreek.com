@@ -52,6 +52,8 @@ app.get('/api/config', (req, res) => {
   });
 });
 
+app.get('/dashboard', (req, res) => res.sendFile(path.join(__dirname, 'dashboard.html')));
+app.get('/features', (req, res) => res.sendFile(path.join(__dirname, 'features.html')));
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 app.get('/payment', (req, res) => res.sendFile(path.join(__dirname, 'payment.html')));
 app.get('/success', (req, res) => res.sendFile(path.join(__dirname, 'success.html')));
