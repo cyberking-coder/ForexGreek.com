@@ -197,8 +197,9 @@
       pointer-events: all;
     }
     #urgency-bar {
-      position: fixed; top: 64px; left: 0; right: 0; z-index: 100;
+      position: fixed; bottom: 40px; left: 20px; z-index: 100;
       display: none;
+      width: 220px;
     }
 
     /* ── Enroll modal ── */
@@ -331,14 +332,13 @@
 ════════════════════════════════════════════ -->
 <div id="main-site">
 
-  <!-- ── STICKY URGENCY BAR ── -->
+  <!-- ── FLOATING URGENCY WIDGET ── -->
   <div id="urgency-bar">
-    <div class="bg-obsidian-800 border-b border-gold/20 px-4 py-2 flex items-center justify-between flex-wrap gap-2" style="background:#12121a;">
-      <span class="text-sm font-mono" id="bar-text">
-        🔥 <span class="text-gold font-bold">LIMITED OFFER ENDS IN:</span>
-        <span id="bar-countdown" class="font-mono text-gold ml-1">05:00</span>
-      </span>
-      <button onclick="openEnrollModal()" class="btn-gold text-xs px-4 py-1.5 rounded-full">Claim Offer →</button>
+    <div class="glass-card rounded-2xl p-4 flex flex-col gap-3" style="border-color: rgba(233,195,73,0.35); background: rgba(10,10,15,0.92);">
+      <div class="text-xs font-mono text-gold font-bold">🔥 OFFER ENDS IN</div>
+      <div id="bar-countdown" class="font-mono text-2xl font-bold text-gold text-center">05:00</div>
+      <div id="bar-text" class="text-xs text-gray-400 text-center">Lock in ₹4,999 before price rises</div>
+      <button onclick="openEnrollModal()" class="btn-gold text-xs px-3 py-2 rounded-xl w-full">Claim Offer →</button>
     </div>
   </div>
 
@@ -420,26 +420,26 @@
     <div class="relative z-10 max-w-5xl mx-auto px-6 text-center">
 
       <!-- Badge -->
-      <div class="hero-anim inline-flex items-center gap-2 glass-card px-4 py-2 rounded-full text-xs font-mono text-gold mb-8" style="opacity:0; animation: fadeUp 0.7s 0.1s ease forwards;">
+      <div class="hero-anim inline-flex items-center gap-2 glass-card px-4 py-2 rounded-full text-xs font-mono text-gold mb-8" style="animation: fadeUp 0.7s 0.1s ease both;">
         <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
         Olympian Ascension Program — Cohort IV Now Open
       </div>
 
       <!-- Headline -->
-      <h1 class="font-garamond text-5xl md:text-7xl lg:text-8xl font-bold leading-tight mb-6" style="opacity:0; animation: fadeUp 0.7s 0.25s ease forwards;">
+      <h1 class="font-garamond text-5xl md:text-7xl lg:text-8xl font-bold leading-tight mb-6" style="animation: fadeUp 0.7s 0.25s ease both;">
         Trade Like the<br/>
         <span class="text-gold-gradient">Gods of Olympus</span>
       </h1>
 
       <!-- Subheadline -->
-      <p class="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto mb-10 font-geist leading-relaxed" style="opacity:0; animation: fadeUp 0.7s 0.4s ease forwards;">
+      <p class="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto mb-10 font-geist leading-relaxed" style="animation: fadeUp 0.7s 0.4s ease both;">
         Master the ancient discipline of forex markets with modern precision.
         The ForexGreek methodology has produced consistently profitable traders
         across 40+ countries. Your ascension begins today.
       </p>
 
       <!-- CTA group -->
-      <div class="flex flex-col sm:flex-row items-center justify-center gap-4" style="opacity:0; animation: fadeUp 0.7s 0.55s ease forwards;">
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4" style="animation: fadeUp 0.7s 0.55s ease both;">
         <button onclick="openEnrollModal()" class="btn-gold px-8 py-4 rounded-xl text-base w-full sm:w-auto">
           Begin Your Ascension →
         </button>
@@ -449,7 +449,7 @@
       </div>
 
       <!-- Social proof strip -->
-      <div class="flex flex-wrap items-center justify-center gap-8 mt-14" style="opacity:0; animation: fadeUp 0.7s 0.7s ease forwards;">
+      <div class="flex flex-wrap items-center justify-center gap-8 mt-14" style="animation: fadeUp 0.7s 0.7s ease both;">
         <div class="text-center">
           <div class="font-mono text-2xl font-bold text-gold">2,400+</div>
           <div class="text-xs text-gray-500 mt-1">Students Enrolled</div>
@@ -473,7 +473,7 @@
     </div>
 
     <!-- Scroll indicator -->
-    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce" style="opacity:0; animation: fadeUp 0.7s 1s ease forwards, bounce 2s 2s ease-in-out infinite;">
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce" style="animation: fadeUp 0.7s 1s ease both;">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(233,195,73,0.5)" stroke-width="2">
         <path d="M6 9l6 6 6-6"/>
       </svg>
@@ -1013,10 +1013,7 @@ function showUrgencyModal() {
 
 function closeUrgencyModal() {
   document.getElementById('urgency-modal').classList.remove('open');
-  // Show sticky urgency bar
   document.getElementById('urgency-bar').style.display = 'block';
-  // Push header down
-  document.getElementById('site-header').style.top = '36px';
 }
 
 // ════════════════════════════════════════════════
@@ -1300,7 +1297,6 @@ document.addEventListener('DOMContentLoaded', () => {
       startCountdownTick();
       // Show urgency bar if modal was dismissed
       document.getElementById('urgency-bar').style.display = 'block';
-      document.getElementById('site-header').style.top = '36px';
     }
   }
 });
