@@ -555,14 +555,18 @@
   ══════════════════════════════════════════ -->
   <section id="hero" class="relative min-h-screen flex flex-col items-center justify-center hero-bg hero-grid overflow-hidden pt-8">
 
-    <!-- Parallax background -->
-    <div id="hero-parallax">
+    <!-- Hero background image with spotlight reveal -->
+    <div id="hero-bg-img" style="position:absolute;inset:0;z-index:0;background-image:url('/hero-bg.jpeg');background-size:cover;background-position:center;"></div>
+    <!-- Black multiply overlay -->
+    <div id="hero-overlay" style="position:absolute;inset:0;z-index:1;background:#000;opacity:0.92;"></div>
+    <!-- Spotlight canvas -->
+    <canvas id="spotlight-canvas" style="position:absolute;inset:0;z-index:2;pointer-events:none;width:100%;height:100%;"></canvas>
       <div class="orb" style="width:600px;height:600px;background:rgba(0,200,83,0.06);top:-10%;left:-10%;"></div>
       <div class="orb" style="width:400px;height:400px;background:rgba(0,200,83,0.04);bottom:10%;right:-5%;"></div>
     </div>
 
     <!-- 3D Candlestick Canvas -->
-    <canvas id="candle-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2;"></canvas>
+    <canvas id="candle-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:4;"></canvas>
 
     <div class="relative z-10 max-w-4xl mx-auto px-6 text-center">
 
@@ -978,7 +982,7 @@
     <!-- Contact CTA -->
     <div class="text-center mt-10 anim-fade-up">
       <p class="text-gray-400 mb-4">Still have questions?</p>
-      <a href="mailto:riteshkelkar45@gmail.com" class="inline-block px-6 py-3 rounded-xl text-sm font-semibold transition-colors" style="border: 1px solid #00c853; color:#00c853; background: rgba(0,200,83,0.05);">
+      <a href="mailto:forexgreeksupport@gmail.com" class="inline-block px-6 py-3 rounded-xl text-sm font-semibold transition-colors" style="border: 1px solid #00c853; color:#00c853; background: rgba(0,200,83,0.05);">
         Contact Us
       </a>
     </div>
@@ -1015,7 +1019,7 @@
             <li><a href="#about" class="hover:text-gold transition-colors">About Us</a></li>
             <li><a href="#curriculum" class="hover:text-gold transition-colors">Courses</a></li>
             <li><a href="#results" class="hover:text-gold transition-colors">Success Stories</a></li>
-            <li><a href="mailto:riteshkelkar45@gmail.com" class="hover:text-gold transition-colors">Contact</a></li>
+            <li><a href="mailto:forexgreeksupport@gmail.com" class="hover:text-gold transition-colors">Contact</a></li>
           </ul>
         </div>
 
@@ -1025,7 +1029,7 @@
           <ul class="space-y-3 text-sm text-gray-500">
             <li class="flex items-center gap-2">
               <svg width="14" height="14" fill="none" stroke="#00c853" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-              <a href="mailto:riteshkelkar45@gmail.com" class="hover:text-gold transition-colors">riteshkelkar45@gmail.com</a>
+              <a href="mailto:forexgreeksupport@gmail.com" class="hover:text-gold transition-colors">forexgreeksupport@gmail.com</a>
             </li>
             <li class="flex items-center gap-2">
               <svg width="14" height="14" fill="none" stroke="#00c853" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.59 1.22h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.78a16 16 0 0 0 5.93 5.93l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7a2 2 0 0 1 1.72 2.02z"/></svg>
@@ -1959,6 +1963,60 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 <script>
+// Hero spotlight effect
+(function() {
+  const hero = document.getElementById('hero');
+  const canvas = document.getElementById('spotlight-canvas');
+  if (!canvas || !hero) return;
+  const ctx = canvas.getContext('2d');
+  let mouse = null;
+  const RADIUS = 180;
+
+  function resize() {
+    canvas.width = hero.offsetWidth;
+    canvas.height = hero.offsetHeight;
+    draw();
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (!mouse) return;
+    // Punch a hole in the overlay by drawing transparent radial gradient
+    // This works by setting the canvas as a mask on the overlay
+    const grad = ctx.createRadialGradient(mouse.x, mouse.y, 0, mouse.x, mouse.y, RADIUS);
+    grad.addColorStop(0, 'rgba(0,0,0,0.75)');
+    grad.addColorStop(0.5, 'rgba(0,0,0,0.5)');
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
+
+  // Use mix-blend-mode to cut through the overlay
+  canvas.style.mixBlendMode = 'destination-out';
+  const overlay = document.getElementById('hero-overlay');
+  if (overlay) {
+    overlay.style.isolation = 'isolate';
+    // Wrap overlay and canvas in an isolated container
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = 'position:absolute;inset:0;z-index:1;isolation:isolate;';
+    overlay.parentNode.insertBefore(wrapper, overlay);
+    wrapper.appendChild(overlay);
+    wrapper.appendChild(canvas);
+    overlay.style.zIndex = '1';
+    canvas.style.zIndex = '2';
+    canvas.style.position = 'absolute';
+  }
+
+  hero.addEventListener('mousemove', (e) => {
+    const rect = hero.getBoundingClientRect();
+    mouse = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    draw();
+  });
+  hero.addEventListener('mouseleave', () => { mouse = null; draw(); });
+  window.addEventListener('resize', resize);
+  setTimeout(resize, 100);
+})();
+
 // Glowing cursor effect
 (function() {
   const glow = document.createElement('div');
