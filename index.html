@@ -1325,162 +1325,154 @@ function toggleMobileMenu() {
 }
 
 // ════════════════════════════════════════════════
-// 3D CANDLESTICK HERO ANIMATION
+// INTERACTIVE 3D CANDLESTICK HERO — cursor draws the chart
 // ════════════════════════════════════════════════
 (function() {
-  const hero = document.getElementById('hero');
+  const hero   = document.getElementById('hero');
   const canvas = document.getElementById('candle-canvas');
-  const ctx = canvas.getContext('2d');
+  const ctx    = canvas.getContext('2d');
+
+  const CANDLE_W   = 22;
+  const CANDLE_GAP = 14;
+  const STEP       = CANDLE_W + CANDLE_GAP;
+  const DEPTH      = 9;
+  const MAX_LIFE   = 4000; // ms before fade
+  const MAX_CANDLES = 28;
 
   let candles = [];
-  let mouse = { x: -999, y: -999 };
-  let lastPattern = -1;
+  let lastSlot = -1;   // last X slot a candle was placed in
+  let lastY    = null; // previous cursor Y
   let rafId;
-  let moveTimeout;
 
   function resize() {
-    canvas.width = hero.offsetWidth;
+    canvas.width  = hero.offsetWidth;
     canvas.height = hero.offsetHeight;
   }
   resize();
-  window.addEventListener('resize', () => { resize(); spawnPattern(); });
+  window.addEventListener('resize', resize);
 
-  // Generate a set of 3D candles forming a chart pattern
-  function spawnPattern() {
-    const W = canvas.width, H = canvas.height;
-    const count = Math.floor(W / 70);
-    const candleW = 28;
-    const depth = 10;
-    const focusX = mouse.x > 0 ? mouse.x : W / 2;
-    const focusY = mouse.y > 0 ? mouse.y : H / 2;
+  function addCandle(slotX, openY, closeY) {
+    const isBull  = closeY <= openY; // lower Y = higher on screen = bullish
+    const bodyTop = Math.min(openY, closeY);
+    const bodyBot = Math.max(openY, closeY);
+    const bodyH   = Math.max(bodyBot - bodyTop, 6);
 
-    // Pick a random pattern seed
-    const seed = Math.random() * 1000;
+    const wickExt  = 8 + Math.random() * 18;
+    const wickTopY = bodyTop - wickExt;
+    const wickBotY = bodyBot + wickExt * 0.6;
 
-    // Build price walk
-    let price = 50 + (focusY / H) * 80;
-    const prices = [];
-    for (let i = 0; i < count; i++) {
-      const move = (Math.sin(seed + i * 0.9) * 18) + (Math.random() - 0.5) * 12;
-      price = Math.max(20, Math.min(130, price + move));
-      prices.push(price);
-    }
-    const minP = Math.min(...prices) - 10;
-    const maxP = Math.max(...prices) + 10;
-
-    const totalW = count * (candleW + 20);
-    const startX = focusX - totalW / 2;
-
-    candles = prices.map((p, i) => {
-      const prev = prices[i - 1] ?? p;
-      const isBull = p >= prev;
-      const bodyHigh = Math.max(p, prev);
-      const bodyLow = Math.min(p, prev);
-      const wickHigh = bodyHigh + 4 + Math.random() * 10;
-      const wickLow = bodyLow - 4 - Math.random() * 10;
-
-      const toY = v => H * 0.85 - ((v - minP) / (maxP - minP)) * (H * 0.62);
-
-      return {
-        x: startX + i * (candleW + 20),
-        topY: toY(bodyHigh),
-        botY: toY(bodyLow),
-        wickTopY: toY(wickHigh),
-        wickBotY: toY(wickLow),
-        w: candleW,
-        depth,
-        isBull,
-        opacity: 0,
-        target: 0.55 + Math.random() * 0.3,
-        delay: i * 35,
-        born: performance.now(),
-      };
+    candles.push({
+      x: slotX,
+      bodyTop, bodyBot, bodyH,
+      wickTopY, wickBotY,
+      isBull,
+      opacity: 0,
+      born: performance.now(),
     });
+
+    // keep pool small
+    if (candles.length > MAX_CANDLES) candles.shift();
   }
 
-  function draw3DCandle(c, now) {
-    const age = now - c.born - c.delay;
-    if (age < 0) return;
+  function draw3D(c, now) {
+    const age     = now - c.born;
+    const lifeRatio = age / MAX_LIFE;
 
-    // Fade in
-    c.opacity = Math.min(c.target, c.opacity + 0.03);
+    // fade in fast, hold, fade out
+    let alpha;
+    if (lifeRatio < 0.08)      alpha = lifeRatio / 0.08;
+    else if (lifeRatio < 0.65) alpha = 1;
+    else                       alpha = 1 - (lifeRatio - 0.65) / 0.35;
+    alpha = Math.max(0, Math.min(1, alpha)) * 0.72;
+    if (alpha < 0.01) return;
 
-    const { x, topY, botY, wickTopY, wickBotY, w, depth, isBull, opacity } = c;
-    const bodyH = botY - topY;
-    if (bodyH < 2) return;
-
-    const color      = isBull ? '#00c853' : '#ef4444';
-    const darkColor  = isBull ? '#007a33' : '#991b1b';
-    const lightColor = isBull ? '#69f0ae' : '#fca5a5';
-    const cx = x + w / 2; // candle center for wick
+    const { x, bodyTop, bodyBot, bodyH, wickTopY, wickBotY, isBull } = c;
+    const color  = isBull ? '#00c853' : '#ef4444';
+    const dark   = isBull ? '#006b2b' : '#7f1d1d';
+    const light  = isBull ? '#86efac' : '#fca5a5';
+    const cx     = x + CANDLE_W / 2;
 
     ctx.save();
 
-    // Wick
-    ctx.globalAlpha = opacity * 0.6;
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 2;
+    // — Wick —
+    ctx.globalAlpha = alpha * 0.7;
+    ctx.strokeStyle  = color;
+    ctx.lineWidth    = 1.5;
     ctx.beginPath();
-    ctx.moveTo(cx + depth * 0.5, wickTopY - depth * 0.5);
-    ctx.lineTo(cx + depth * 0.5, topY - depth * 0.5);
-    ctx.moveTo(cx + depth * 0.5, botY - depth * 0.5);
-    ctx.lineTo(cx + depth * 0.5, wickBotY - depth * 0.5);
+    // offset wick to sit on the 3D centre top of candle
+    ctx.moveTo(cx + DEPTH * 0.5, wickTopY - DEPTH * 0.5);
+    ctx.lineTo(cx + DEPTH * 0.5, bodyTop  - DEPTH * 0.5);
+    ctx.moveTo(cx + DEPTH * 0.5, bodyBot  - DEPTH * 0.5);
+    ctx.lineTo(cx + DEPTH * 0.5, wickBotY - DEPTH * 0.5);
     ctx.stroke();
 
-    // Front face
-    ctx.globalAlpha = opacity;
-    ctx.fillStyle = color;
-    ctx.fillRect(x, topY, w, bodyH);
+    // — Front face —
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle   = color;
+    ctx.fillRect(x, bodyTop, CANDLE_W, bodyH);
 
-    // Right side face
-    ctx.fillStyle = darkColor;
+    // — Right face —
+    ctx.fillStyle = dark;
     ctx.beginPath();
-    ctx.moveTo(x + w, topY);
-    ctx.lineTo(x + w + depth, topY - depth * 0.5);
-    ctx.lineTo(x + w + depth, botY - depth * 0.5);
-    ctx.lineTo(x + w, botY);
+    ctx.moveTo(x + CANDLE_W,          bodyTop);
+    ctx.lineTo(x + CANDLE_W + DEPTH,  bodyTop  - DEPTH * 0.5);
+    ctx.lineTo(x + CANDLE_W + DEPTH,  bodyBot  - DEPTH * 0.5);
+    ctx.lineTo(x + CANDLE_W,          bodyBot);
     ctx.closePath();
     ctx.fill();
 
-    // Top face
-    ctx.fillStyle = lightColor;
+    // — Top face —
+    ctx.fillStyle = light;
     ctx.beginPath();
-    ctx.moveTo(x, topY);
-    ctx.lineTo(x + w, topY);
-    ctx.lineTo(x + w + depth, topY - depth * 0.5);
-    ctx.lineTo(x + depth, topY - depth * 0.5);
+    ctx.moveTo(x,                     bodyTop);
+    ctx.lineTo(x + CANDLE_W,          bodyTop);
+    ctx.lineTo(x + CANDLE_W + DEPTH,  bodyTop  - DEPTH * 0.5);
+    ctx.lineTo(x          + DEPTH,    bodyTop  - DEPTH * 0.5);
     ctx.closePath();
     ctx.fill();
 
-    // Subtle glow
-    ctx.globalAlpha = opacity * 0.12;
-    const grd = ctx.createLinearGradient(x - 10, 0, x + w + 20, 0);
-    grd.addColorStop(0, 'transparent');
-    grd.addColorStop(0.5, color);
-    grd.addColorStop(1, 'transparent');
-    ctx.fillStyle = grd;
-    ctx.fillRect(x - 10, wickTopY - 20, w + 20, wickBotY - wickTopY + 40);
+    // — Glow bloom —
+    ctx.globalAlpha = alpha * 0.10;
+    const grad = ctx.createRadialGradient(cx, (bodyTop + bodyBot) / 2, 0, cx, (bodyTop + bodyBot) / 2, 55);
+    grad.addColorStop(0, color);
+    grad.addColorStop(1, 'transparent');
+    ctx.fillStyle = grad;
+    ctx.fillRect(x - 30, wickTopY - 20, CANDLE_W + 60, wickBotY - wickTopY + 40);
 
     ctx.restore();
   }
 
   function loop(now) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    candles.forEach(c => draw3DCandle(c, now));
+
+    // draw all live candles
+    candles = candles.filter(c => (now - c.born) < MAX_LIFE + 200);
+    candles.forEach(c => draw3D(c, now));
+
     rafId = requestAnimationFrame(loop);
   }
 
-  // Spawn on mouse move with debounce
   hero.addEventListener('mousemove', (e) => {
-    const rect = hero.getBoundingClientRect();
-    mouse.x = e.clientX - rect.left;
-    mouse.y = e.clientY - rect.top;
-    clearTimeout(moveTimeout);
-    moveTimeout = setTimeout(spawnPattern, 80);
+    const rect  = hero.getBoundingClientRect();
+    const mx    = e.clientX - rect.left;
+    const my    = e.clientY - rect.top;
+    const slot  = Math.floor(mx / STEP);
+
+    if (slot !== lastSlot) {
+      const openY  = lastY !== null ? lastY : my;
+      const closeY = my;
+      addCandle(slot * STEP, openY, closeY);
+      lastSlot = slot;
+    }
+    lastY = my;
   });
 
-  // Initial pattern + start loop
-  spawnPattern();
+  // Leave hero → reset so next entry starts fresh
+  hero.addEventListener('mouseleave', () => {
+    lastSlot = -1;
+    lastY    = null;
+  });
+
   rafId = requestAnimationFrame(loop);
 })();
 
