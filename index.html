@@ -175,12 +175,15 @@
     .ticker-wrap {
       overflow: hidden;
       white-space: nowrap;
+      width: 100%;
     }
     .ticker-track {
-      display: inline-flex;
-      animation: ticker 35s linear infinite;
+      display: flex;
+      width: max-content;
+      animation: ticker 40s linear infinite;
     }
     .ticker-wrap:hover .ticker-track { animation-play-state: paused; }
+    .ticker-item { display: inline-flex; align-items: center; flex-shrink: 0; }
 
     /* ── Urgency modal ── */
     #urgency-modal {
@@ -1235,31 +1238,66 @@ function setupStickyHeader() {
 }
 
 // ════════════════════════════════════════════════
-// FOREX TICKER (static data — swap with live API if available)
+// FOREX TICKER — live data via Frankfurter API
 // ════════════════════════════════════════════════
-function buildTicker() {
-  const data = {
-    EURUSD: { price: '1.0842', change: '+0.0012', up: true },
-    GBPUSD: { price: '1.2734', change: '-0.0023', up: false },
-    USDJPY: { price: '157.82', change: '+0.34', up: true },
-    AUDUSD: { price: '0.6512', change: '+0.0008', up: true },
-    USDCHF: { price: '0.9023', change: '-0.0015', up: false },
-    USDCAD: { price: '1.3654', change: '+0.0041', up: true },
-    NZDUSD: { price: '0.5987', change: '-0.0006', up: false },
-    XAUUSD: { price: '2341.50', change: '+12.30', up: true },
-  };
-
+function renderTicker(data) {
   document.querySelectorAll('.ticker-item').forEach(el => {
     const pair = el.dataset.pair;
     const d = data[pair];
     if (!d) return;
-    el.innerHTML = `
-      <span style="color:#9ca3af;font-size:12px;font-family:'JetBrains Mono',monospace;margin-right:32px;">
-        <span style="color:#e8e6e0;font-weight:600;">${pair}</span>
-        <span style="margin:0 6px;">${d.price}</span>
-        <span style="color:${d.up ? '#4ade80' : '#f87171'};">${d.change}</span>
-      </span>`;
+    const up = d.change >= 0;
+    const changeStr = (up ? '+' : '') + d.change.toFixed(d.price > 10 ? 2 : 4);
+    el.innerHTML = `<span style="color:#9ca3af;font-size:12px;font-family:'JetBrains Mono',monospace;padding:0 28px;border-right:1px solid rgba(0,200,83,0.15);">
+      <span style="color:#e8e6e0;font-weight:600;letter-spacing:0.05em;">${pair}</span>
+      <span style="margin:0 8px;color:#fff;">${d.price.toFixed(d.price > 10 ? 2 : 4)}</span>
+      <span style="color:${up ? '#4ade80' : '#f87171'};">${changeStr}</span>
+    </span>`;
   });
+}
+
+async function buildTicker() {
+  // Static fallback data
+  const fallback = {
+    EURUSD: { price: 1.0842, change: 0.0012 },
+    GBPUSD: { price: 1.2734, change: -0.0023 },
+    USDJPY: { price: 157.82, change: 0.34 },
+    AUDUSD: { price: 0.6512, change: 0.0008 },
+    USDCHF: { price: 0.9023, change: -0.0015 },
+    USDCAD: { price: 1.3654, change: 0.0041 },
+    NZDUSD: { price: 0.5987, change: -0.0006 },
+    XAUUSD: { price: 2341.50, change: 12.30 },
+  };
+
+  renderTicker(fallback);
+
+  try {
+    // Fetch USD-based pairs
+    const [usdRes, eurRes] = await Promise.all([
+      fetch('https://api.frankfurter.app/latest?from=USD&to=JPY,CHF,CAD'),
+      fetch('https://api.frankfurter.app/latest?from=EUR&to=USD,GBP,AUD,NZD'),
+    ]);
+    const usdData = await usdRes.json();
+    const eurData = await eurRes.json();
+
+    const live = {
+      EURUSD: { price: eurData.rates.USD, change: eurData.rates.USD - fallback.EURUSD.price },
+      GBPUSD: { price: eurData.rates.GBP ? 1 / eurData.rates.GBP * eurData.rates.USD : fallback.GBPUSD.price, change: fallback.GBPUSD.change },
+      USDJPY: { price: usdData.rates.JPY, change: usdData.rates.JPY - fallback.USDJPY.price },
+      AUDUSD: { price: eurData.rates.AUD ? eurData.rates.USD / eurData.rates.AUD : fallback.AUDUSD.price, change: fallback.AUDUSD.change },
+      USDCHF: { price: usdData.rates.CHF, change: usdData.rates.CHF - fallback.USDCHF.price },
+      USDCAD: { price: usdData.rates.CAD, change: usdData.rates.CAD - fallback.USDCAD.price },
+      NZDUSD: { price: eurData.rates.NZD ? eurData.rates.USD / eurData.rates.NZD : fallback.NZDUSD.price, change: fallback.NZDUSD.change },
+      XAUUSD: fallback.XAUUSD,
+    };
+
+    renderTicker(live);
+
+    // Refresh every 60 seconds
+    setTimeout(buildTicker, 60000);
+  } catch (e) {
+    // Fallback already rendered, retry in 30s
+    setTimeout(buildTicker, 30000);
+  }
 }
 
 // ════════════════════════════════════════════════
