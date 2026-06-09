@@ -12,6 +12,9 @@ const authRouter = require('./routes/auth');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Trust Railway's proxy
+app.set('trust proxy', 1);
+
 // CORS
 app.use(cors({
   origin: process.env.NODE_ENV === 'production'
