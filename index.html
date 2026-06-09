@@ -426,6 +426,9 @@
       <div class="orb" style="width:400px;height:400px;background:rgba(0,200,83,0.04);bottom:10%;right:-5%;"></div>
     </div>
 
+    <!-- 3D Candlestick Canvas -->
+    <canvas id="candle-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2;"></canvas>
+
     <div class="relative z-10 max-w-5xl mx-auto px-6 text-center">
 
       <!-- Badge -->
@@ -1320,6 +1323,166 @@ function togglePasswordVisibility(inputId, btn) {
 function toggleMobileMenu() {
   document.getElementById('mobile-menu').classList.toggle('open');
 }
+
+// ════════════════════════════════════════════════
+// 3D CANDLESTICK HERO ANIMATION
+// ════════════════════════════════════════════════
+(function() {
+  const hero = document.getElementById('hero');
+  const canvas = document.getElementById('candle-canvas');
+  const ctx = canvas.getContext('2d');
+
+  let candles = [];
+  let mouse = { x: -999, y: -999 };
+  let lastPattern = -1;
+  let rafId;
+  let moveTimeout;
+
+  function resize() {
+    canvas.width = hero.offsetWidth;
+    canvas.height = hero.offsetHeight;
+  }
+  resize();
+  window.addEventListener('resize', () => { resize(); spawnPattern(); });
+
+  // Generate a set of 3D candles forming a chart pattern
+  function spawnPattern() {
+    const W = canvas.width, H = canvas.height;
+    const count = Math.floor(W / 70);
+    const candleW = 28;
+    const depth = 10;
+    const focusX = mouse.x > 0 ? mouse.x : W / 2;
+    const focusY = mouse.y > 0 ? mouse.y : H / 2;
+
+    // Pick a random pattern seed
+    const seed = Math.random() * 1000;
+
+    // Build price walk
+    let price = 50 + (focusY / H) * 80;
+    const prices = [];
+    for (let i = 0; i < count; i++) {
+      const move = (Math.sin(seed + i * 0.9) * 18) + (Math.random() - 0.5) * 12;
+      price = Math.max(20, Math.min(130, price + move));
+      prices.push(price);
+    }
+    const minP = Math.min(...prices) - 10;
+    const maxP = Math.max(...prices) + 10;
+
+    const totalW = count * (candleW + 20);
+    const startX = focusX - totalW / 2;
+
+    candles = prices.map((p, i) => {
+      const prev = prices[i - 1] ?? p;
+      const isBull = p >= prev;
+      const bodyHigh = Math.max(p, prev);
+      const bodyLow = Math.min(p, prev);
+      const wickHigh = bodyHigh + 4 + Math.random() * 10;
+      const wickLow = bodyLow - 4 - Math.random() * 10;
+
+      const toY = v => H * 0.85 - ((v - minP) / (maxP - minP)) * (H * 0.62);
+
+      return {
+        x: startX + i * (candleW + 20),
+        topY: toY(bodyHigh),
+        botY: toY(bodyLow),
+        wickTopY: toY(wickHigh),
+        wickBotY: toY(wickLow),
+        w: candleW,
+        depth,
+        isBull,
+        opacity: 0,
+        target: 0.55 + Math.random() * 0.3,
+        delay: i * 35,
+        born: performance.now(),
+      };
+    });
+  }
+
+  function draw3DCandle(c, now) {
+    const age = now - c.born - c.delay;
+    if (age < 0) return;
+
+    // Fade in
+    c.opacity = Math.min(c.target, c.opacity + 0.03);
+
+    const { x, topY, botY, wickTopY, wickBotY, w, depth, isBull, opacity } = c;
+    const bodyH = botY - topY;
+    if (bodyH < 2) return;
+
+    const color      = isBull ? '#00c853' : '#ef4444';
+    const darkColor  = isBull ? '#007a33' : '#991b1b';
+    const lightColor = isBull ? '#69f0ae' : '#fca5a5';
+    const cx = x + w / 2; // candle center for wick
+
+    ctx.save();
+
+    // Wick
+    ctx.globalAlpha = opacity * 0.6;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(cx + depth * 0.5, wickTopY - depth * 0.5);
+    ctx.lineTo(cx + depth * 0.5, topY - depth * 0.5);
+    ctx.moveTo(cx + depth * 0.5, botY - depth * 0.5);
+    ctx.lineTo(cx + depth * 0.5, wickBotY - depth * 0.5);
+    ctx.stroke();
+
+    // Front face
+    ctx.globalAlpha = opacity;
+    ctx.fillStyle = color;
+    ctx.fillRect(x, topY, w, bodyH);
+
+    // Right side face
+    ctx.fillStyle = darkColor;
+    ctx.beginPath();
+    ctx.moveTo(x + w, topY);
+    ctx.lineTo(x + w + depth, topY - depth * 0.5);
+    ctx.lineTo(x + w + depth, botY - depth * 0.5);
+    ctx.lineTo(x + w, botY);
+    ctx.closePath();
+    ctx.fill();
+
+    // Top face
+    ctx.fillStyle = lightColor;
+    ctx.beginPath();
+    ctx.moveTo(x, topY);
+    ctx.lineTo(x + w, topY);
+    ctx.lineTo(x + w + depth, topY - depth * 0.5);
+    ctx.lineTo(x + depth, topY - depth * 0.5);
+    ctx.closePath();
+    ctx.fill();
+
+    // Subtle glow
+    ctx.globalAlpha = opacity * 0.12;
+    const grd = ctx.createLinearGradient(x - 10, 0, x + w + 20, 0);
+    grd.addColorStop(0, 'transparent');
+    grd.addColorStop(0.5, color);
+    grd.addColorStop(1, 'transparent');
+    ctx.fillStyle = grd;
+    ctx.fillRect(x - 10, wickTopY - 20, w + 20, wickBotY - wickTopY + 40);
+
+    ctx.restore();
+  }
+
+  function loop(now) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    candles.forEach(c => draw3DCandle(c, now));
+    rafId = requestAnimationFrame(loop);
+  }
+
+  // Spawn on mouse move with debounce
+  hero.addEventListener('mousemove', (e) => {
+    const rect = hero.getBoundingClientRect();
+    mouse.x = e.clientX - rect.left;
+    mouse.y = e.clientY - rect.top;
+    clearTimeout(moveTimeout);
+    moveTimeout = setTimeout(spawnPattern, 80);
+  });
+
+  // Initial pattern + start loop
+  spawnPattern();
+  rafId = requestAnimationFrame(loop);
+})();
 
 // ════════════════════════════════════════════════
 // INIT
