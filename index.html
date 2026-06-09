@@ -324,25 +324,7 @@
 <!-- ════════════════════════════════════════════
      VIDEO GATE
 ════════════════════════════════════════════ -->
-<div id="video-gate">
-  <video
-    id="gate-video"
-    src="https://drive.google.com/uc?export=download&id=1iOqqm8NmZCTkvtriOfoDOTz1YYQbxT7e"
-    autoplay
-    muted
-    playsinline
-    preload="auto"
-  ></video>
-
-  <!-- Mobile tap-to-play -->
-  <button id="gate-tap-btn">▶ Tap to Watch Intro</button>
-
-  <!-- Unmute toggle -->
-  <button id="gate-unmute">🔇 Unmute</button>
-
-  <!-- Gold progress bar -->
-  <div id="gate-progress-bar"></div>
-</div>
+<div id="video-gate" style="display:none;"></div>
 
 <!-- ════════════════════════════════════════════
      MAIN SITE
@@ -914,67 +896,12 @@
 // VIDEO GATE
 // ════════════════════════════════════════════════
 (function() {
-  const gate = document.getElementById('video-gate');
-  const video = document.getElementById('gate-video');
-  const progressBar = document.getElementById('gate-progress-bar');
-  const unmuteBtn = document.getElementById('gate-unmute');
-  const tapBtn = document.getElementById('gate-tap-btn');
+  // Video gate bypassed — reveal site immediately
   const mainSite = document.getElementById('main-site');
-
-  if (sessionStorage.getItem('fg_video_watched') === 'true') {
-    gate.remove();
-    document.body.style.overflow = 'auto';
-    mainSite.classList.add('revealed');
-    return;
-  }
-
-  document.body.style.overflow = 'hidden';
-
-  function revealSite() {
-    sessionStorage.setItem('fg_video_watched', 'true');
-    gate.style.transition = 'opacity 1.2s ease';
-    gate.style.opacity = '0';
-    setTimeout(() => {
-      gate.remove();
-      document.body.style.overflow = 'auto';
-      mainSite.classList.add('revealed');
-      setTimeout(showUrgencyModal, 1500);
-    }, 1200);
-  }
-
-  video.addEventListener('timeupdate', () => {
-    if (video.duration) {
-      progressBar.style.width = (video.currentTime / video.duration * 100) + '%';
-    }
-  });
-
-  video.addEventListener('ended', revealSite);
-
-  video.addEventListener('error', () => {
-    tapBtn.style.display = 'block';
-    tapBtn.textContent = '▶ Tap to Watch Intro';
-    tapBtn.onclick = () => {
-      video.play().catch(() => {});
-    };
-    video.addEventListener('ended', revealSite);
-  });
-
-  // Mobile: browsers block autoplay without interaction
-  const playPromise = video.play();
-  if (playPromise !== undefined) {
-    playPromise.catch(() => {
-      tapBtn.style.display = 'block';
-      tapBtn.onclick = () => {
-        tapBtn.style.display = 'none';
-        video.play();
-      };
-    });
-  }
-
-  unmuteBtn.addEventListener('click', () => {
-    video.muted = !video.muted;
-    unmuteBtn.textContent = video.muted ? '🔇 Unmute' : '🔊 Mute';
-  });
+  document.body.style.overflow = 'auto';
+  mainSite.classList.add('revealed');
+  sessionStorage.setItem('fg_video_watched', 'true');
+  setTimeout(showUrgencyModal, 1500);
 })();
 
 // ════════════════════════════════════════════════
