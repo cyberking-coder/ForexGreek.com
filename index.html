@@ -1446,8 +1446,18 @@ function toggleMobileMenu() {
   resize();
   window.addEventListener('resize', resize);
 
+  const DEPTH_X = 8;
+  const DEPTH_Y = -5;
+
   function drawCandle(c, alpha, glow) {
-    const color = c.isBull ? '#00c853' : '#ff1744';
+    const color     = c.isBull ? '#00c853' : '#ff1744';
+    const colorSide = c.isBull ? '#00791f' : '#9b0000';
+    const colorTop  = c.isBull ? '#33d068' : '#ff4d6a';
+
+    const x  = c.x;
+    const y  = c.bodyTop;
+    const w  = CANDLE_W;
+    const h  = c.bodyH;
 
     ctx.save();
     ctx.globalAlpha = alpha;
@@ -1459,19 +1469,43 @@ function toggleMobileMenu() {
       ctx.shadowBlur = 0;
     }
 
-    // Wick
+    // ── Right side face (darker parallelogram) ──────────────────
+    ctx.fillStyle = colorSide;
+    ctx.beginPath();
+    ctx.moveTo(x + w,            y);               // front top-right
+    ctx.lineTo(x + w + DEPTH_X,  y + DEPTH_Y);     // back top-right
+    ctx.lineTo(x + w + DEPTH_X,  y + DEPTH_Y + h); // back bottom-right
+    ctx.lineTo(x + w,            y + h);            // front bottom-right
+    ctx.closePath();
+    ctx.fill();
+
+    // ── Top face (lighter parallelogram) ────────────────────────
+    ctx.fillStyle = colorTop;
+    ctx.beginPath();
+    ctx.moveTo(x,            y);               // front top-left
+    ctx.lineTo(x + w,        y);               // front top-right
+    ctx.lineTo(x + w + DEPTH_X, y + DEPTH_Y); // back top-right
+    ctx.lineTo(x + DEPTH_X,  y + DEPTH_Y);    // back top-left
+    ctx.closePath();
+    ctx.fill();
+
+    // ── Front face (hollow strokeRect) ──────────────────────────
+    ctx.strokeStyle = color;
+    ctx.lineWidth   = 1.5;
+    ctx.strokeRect(x, y, w, h);
+
+    // ── Wicks ────────────────────────────────────────────────────
     ctx.strokeStyle = color;
     ctx.lineWidth   = 1;
     ctx.beginPath();
-    ctx.moveTo(c.cx, c.wickTop);
-    ctx.lineTo(c.cx, c.bodyTop);
+    // top wick: from center-top of front face upward (with 3D offset)
+    ctx.moveTo(c.cx,              c.bodyTop);
+    ctx.lineTo(c.cx + DEPTH_X/2, c.bodyTop + DEPTH_Y/2);
+    ctx.lineTo(c.cx + DEPTH_X/2, c.wickTop  + DEPTH_Y/2);
+    // bottom wick: from center-bottom of front face downward
     ctx.moveTo(c.cx, c.bodyBot);
     ctx.lineTo(c.cx, c.wickBot);
     ctx.stroke();
-
-    // Hollow body (stroke only, no fill)
-    ctx.lineWidth   = 1.5;
-    ctx.strokeRect(c.x, c.bodyTop, CANDLE_W, c.bodyH);
 
     ctx.restore();
   }
