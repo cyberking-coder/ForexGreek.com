@@ -180,9 +180,8 @@
     .ticker-track {
       display: flex;
       width: max-content;
-      animation: ticker 40s linear infinite;
+      will-change: transform;
     }
-    .ticker-wrap:hover .ticker-track { animation-play-state: paused; }
     .ticker-item { display: inline-flex; align-items: center; flex-shrink: 0; }
 
     /* ── Urgency modal ── */
@@ -409,25 +408,7 @@
 
   <!-- ── FOREX TICKER ── -->
   <div class="ticker-wrap py-2 mt-16" style="background:#0d0d14; border-bottom: 1px solid rgba(0,200,83,0.1);">
-    <div class="ticker-track">
-      <span class="ticker-item" data-pair="EURUSD"></span>
-      <span class="ticker-item" data-pair="GBPUSD"></span>
-      <span class="ticker-item" data-pair="USDJPY"></span>
-      <span class="ticker-item" data-pair="AUDUSD"></span>
-      <span class="ticker-item" data-pair="USDCHF"></span>
-      <span class="ticker-item" data-pair="USDCAD"></span>
-      <span class="ticker-item" data-pair="NZDUSD"></span>
-      <span class="ticker-item" data-pair="XAUUSD"></span>
-      <!-- Duplicate for seamless loop -->
-      <span class="ticker-item" data-pair="EURUSD"></span>
-      <span class="ticker-item" data-pair="GBPUSD"></span>
-      <span class="ticker-item" data-pair="USDJPY"></span>
-      <span class="ticker-item" data-pair="AUDUSD"></span>
-      <span class="ticker-item" data-pair="USDCHF"></span>
-      <span class="ticker-item" data-pair="USDCAD"></span>
-      <span class="ticker-item" data-pair="NZDUSD"></span>
-      <span class="ticker-item" data-pair="XAUUSD"></span>
-    </div>
+    <div class="ticker-track"></div>
   </div>
 
   <!-- ══════════════════════════════════════════
@@ -1316,19 +1297,42 @@ function setupStickyHeader() {
 // ════════════════════════════════════════════════
 // FOREX TICKER — live data via Frankfurter API
 // ════════════════════════════════════════════════
+let tickerRAF = null;
+let tickerX = 0;
+
 function renderTicker(data) {
-  document.querySelectorAll('.ticker-item').forEach(el => {
-    const pair = el.dataset.pair;
+  const track = document.querySelector('.ticker-track');
+  if (!track) return;
+
+  // Build one set of items
+  const pairs = ['EURUSD','GBPUSD','USDJPY','AUDUSD','USDCHF','USDCAD','NZDUSD','XAUUSD'];
+  const itemHTML = pairs.map(pair => {
     const d = data[pair];
-    if (!d) return;
+    if (!d) return '';
     const up = d.change >= 0;
     const changeStr = (up ? '+' : '') + d.change.toFixed(d.price > 10 ? 2 : 4);
-    el.innerHTML = `<span style="color:#9ca3af;font-size:12px;font-family:'JetBrains Mono',monospace;padding:0 28px;border-right:1px solid rgba(0,200,83,0.15);">
+    return `<span class="ticker-item"><span style="color:#9ca3af;font-size:12px;font-family:'JetBrains Mono',monospace;padding:0 28px;border-right:1px solid rgba(0,200,83,0.15);">
       <span style="color:#e8e6e0;font-weight:600;letter-spacing:0.05em;">${pair}</span>
       <span style="margin:0 8px;color:#fff;">${d.price.toFixed(d.price > 10 ? 2 : 4)}</span>
       <span style="color:${up ? '#4ade80' : '#f87171'};">${changeStr}</span>
-    </span>`;
-  });
+    </span></span>`;
+  }).join('');
+
+  // Duplicate for seamless loop
+  track.innerHTML = itemHTML + itemHTML;
+  tickerX = 0;
+
+  // Cancel previous animation
+  if (tickerRAF) cancelAnimationFrame(tickerRAF);
+
+  function animate() {
+    tickerX -= 0.5;
+    const half = track.scrollWidth / 2;
+    if (Math.abs(tickerX) >= half) tickerX = 0;
+    track.style.transform = `translateX(${tickerX}px)`;
+    tickerRAF = requestAnimationFrame(animate);
+  }
+  animate();
 }
 
 async function buildTicker() {
