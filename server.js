@@ -74,7 +74,7 @@ app.get('/success', (req, res) => {
 
 // Only bind port when running directly (not imported by Vercel)
 if (require.main === module) {
-  app.listen(PORT, () => {
+  app.listen(PORT, '0.0.0.0', () => {
     console.log(`[ForexGreek] Server running on http://localhost:${PORT}`);
   });
 }
