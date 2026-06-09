@@ -1392,155 +1392,123 @@ function toggleMobileMenu() {
 }
 
 // ════════════════════════════════════════════════
-// INTERACTIVE 3D CANDLESTICK HERO — cursor draws the chart
+// HOLLOW CANDLESTICK GRID HERO — cursor illuminates candles
 // ════════════════════════════════════════════════
 (function() {
   const hero   = document.getElementById('hero');
   const canvas = document.getElementById('candle-canvas');
   const ctx    = canvas.getContext('2d');
 
-  const CANDLE_W   = 22;
-  const CANDLE_GAP = 14;
-  const STEP       = CANDLE_W + CANDLE_GAP;
-  const DEPTH      = 9;
-  const MAX_LIFE   = 4000; // ms before fade
-  const MAX_CANDLES = 28;
+  const CANDLE_W  = 18;
+  const COL_STEP  = 50;
+  const ROW_STEP  = 80;
+  const BASE_OPACITY = 0.08;
+  const GLOW_RADIUS  = 120;
 
-  let candles = [];
-  let lastSlot = -1;   // last X slot a candle was placed in
-  let lastY    = null; // previous cursor Y
-  let rafId;
+  let grid = [];      // pre-generated candle data
+  let mouse = null;   // {x, y} or null
+
+  function buildGrid() {
+    grid = [];
+    const cols = Math.ceil(canvas.width  / COL_STEP) + 1;
+    const rows = Math.ceil(canvas.height / ROW_STEP) + 1;
+
+    for (let col = 0; col < cols; col++) {
+      for (let row = 0; row < rows; row++) {
+        const cx = col * COL_STEP + COL_STEP / 2;
+        const cy = row * ROW_STEP + ROW_STEP / 2;
+
+        // random body height: 12–44px, centred on cy
+        const bodyH    = 12 + Math.random() * 32;
+        const bodyTop  = cy - bodyH / 2;
+        const bodyBot  = cy + bodyH / 2;
+
+        // random wick extensions
+        const wickTop  = bodyTop - (6 + Math.random() * 18);
+        const wickBot  = bodyBot + (4 + Math.random() * 14);
+
+        // x position: centre the body around cx
+        const x = cx - CANDLE_W / 2;
+
+        const isBull = Math.random() > 0.5;
+
+        grid.push({ x, cx, bodyTop, bodyBot, bodyH, wickTop, wickBot, isBull });
+      }
+    }
+  }
 
   function resize() {
     canvas.width  = hero.offsetWidth;
     canvas.height = hero.offsetHeight;
+    buildGrid();
+    draw();
   }
   resize();
   window.addEventListener('resize', resize);
 
-  function addCandle(slotX, openY, closeY) {
-    const isBull  = closeY <= openY; // lower Y = higher on screen = bullish
-    const bodyTop = Math.min(openY, closeY);
-    const bodyBot = Math.max(openY, closeY);
-    const bodyH   = Math.max(bodyBot - bodyTop, 6);
-
-    const wickExt  = 8 + Math.random() * 18;
-    const wickTopY = bodyTop - wickExt;
-    const wickBotY = bodyBot + wickExt * 0.6;
-
-    candles.push({
-      x: slotX,
-      bodyTop, bodyBot, bodyH,
-      wickTopY, wickBotY,
-      isBull,
-      opacity: 0,
-      born: performance.now(),
-    });
-
-    // keep pool small
-    if (candles.length > MAX_CANDLES) candles.shift();
-  }
-
-  function draw3D(c, now) {
-    const age     = now - c.born;
-    const lifeRatio = age / MAX_LIFE;
-
-    // fade in fast, hold, fade out
-    let alpha;
-    if (lifeRatio < 0.08)      alpha = lifeRatio / 0.08;
-    else if (lifeRatio < 0.65) alpha = 1;
-    else                       alpha = 1 - (lifeRatio - 0.65) / 0.35;
-    alpha = Math.max(0, Math.min(1, alpha)) * 0.72;
-    if (alpha < 0.01) return;
-
-    const { x, bodyTop, bodyBot, bodyH, wickTopY, wickBotY, isBull } = c;
-    const color  = isBull ? '#00c853' : '#ef4444';
-    const dark   = isBull ? '#006b2b' : '#7f1d1d';
-    const light  = isBull ? '#86efac' : '#fca5a5';
-    const cx     = x + CANDLE_W / 2;
+  function drawCandle(c, alpha, glow) {
+    const color = c.isBull ? '#00c853' : '#ff1744';
 
     ctx.save();
+    ctx.globalAlpha = alpha;
 
-    // — Wick —
-    ctx.globalAlpha = alpha * 0.7;
-    ctx.strokeStyle  = color;
-    ctx.lineWidth    = 1.5;
+    if (glow > 0) {
+      ctx.shadowColor = color;
+      ctx.shadowBlur  = glow;
+    } else {
+      ctx.shadowBlur = 0;
+    }
+
+    // Wick
+    ctx.strokeStyle = color;
+    ctx.lineWidth   = 1;
     ctx.beginPath();
-    // offset wick to sit on the 3D centre top of candle
-    ctx.moveTo(cx + DEPTH * 0.5, wickTopY - DEPTH * 0.5);
-    ctx.lineTo(cx + DEPTH * 0.5, bodyTop  - DEPTH * 0.5);
-    ctx.moveTo(cx + DEPTH * 0.5, bodyBot  - DEPTH * 0.5);
-    ctx.lineTo(cx + DEPTH * 0.5, wickBotY - DEPTH * 0.5);
+    ctx.moveTo(c.cx, c.wickTop);
+    ctx.lineTo(c.cx, c.bodyTop);
+    ctx.moveTo(c.cx, c.bodyBot);
+    ctx.lineTo(c.cx, c.wickBot);
     ctx.stroke();
 
-    // — Front face —
-    ctx.globalAlpha = alpha;
-    ctx.fillStyle   = color;
-    ctx.fillRect(x, bodyTop, CANDLE_W, bodyH);
-
-    // — Right face —
-    ctx.fillStyle = dark;
-    ctx.beginPath();
-    ctx.moveTo(x + CANDLE_W,          bodyTop);
-    ctx.lineTo(x + CANDLE_W + DEPTH,  bodyTop  - DEPTH * 0.5);
-    ctx.lineTo(x + CANDLE_W + DEPTH,  bodyBot  - DEPTH * 0.5);
-    ctx.lineTo(x + CANDLE_W,          bodyBot);
-    ctx.closePath();
-    ctx.fill();
-
-    // — Top face —
-    ctx.fillStyle = light;
-    ctx.beginPath();
-    ctx.moveTo(x,                     bodyTop);
-    ctx.lineTo(x + CANDLE_W,          bodyTop);
-    ctx.lineTo(x + CANDLE_W + DEPTH,  bodyTop  - DEPTH * 0.5);
-    ctx.lineTo(x          + DEPTH,    bodyTop  - DEPTH * 0.5);
-    ctx.closePath();
-    ctx.fill();
-
-    // — Glow bloom —
-    ctx.globalAlpha = alpha * 0.10;
-    const grad = ctx.createRadialGradient(cx, (bodyTop + bodyBot) / 2, 0, cx, (bodyTop + bodyBot) / 2, 55);
-    grad.addColorStop(0, color);
-    grad.addColorStop(1, 'transparent');
-    ctx.fillStyle = grad;
-    ctx.fillRect(x - 30, wickTopY - 20, CANDLE_W + 60, wickBotY - wickTopY + 40);
+    // Hollow body (stroke only, no fill)
+    ctx.lineWidth   = 1.5;
+    ctx.strokeRect(c.x, c.bodyTop, CANDLE_W, c.bodyH);
 
     ctx.restore();
   }
 
-  function loop(now) {
+  function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // draw all live candles
-    candles = candles.filter(c => (now - c.born) < MAX_LIFE + 200);
-    candles.forEach(c => draw3D(c, now));
+    grid.forEach(c => {
+      let alpha = BASE_OPACITY;
+      let glow  = 0;
 
-    rafId = requestAnimationFrame(loop);
+      if (mouse) {
+        const dx   = c.cx - mouse.x;
+        const dy   = (c.bodyTop + c.bodyBot) / 2 - mouse.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist < GLOW_RADIUS) {
+          const t = 1 - dist / GLOW_RADIUS;   // 1 at centre, 0 at edge
+          alpha = BASE_OPACITY + (1 - BASE_OPACITY) * t;
+          glow  = 20 * t;
+        }
+      }
+
+      drawCandle(c, alpha, glow);
+    });
   }
 
   hero.addEventListener('mousemove', (e) => {
-    const rect  = hero.getBoundingClientRect();
-    const mx    = e.clientX - rect.left;
-    const my    = e.clientY - rect.top;
-    const slot  = Math.floor(mx / STEP);
-
-    if (slot !== lastSlot) {
-      const openY  = lastY !== null ? lastY : my;
-      const closeY = my;
-      addCandle(slot * STEP, openY, closeY);
-      lastSlot = slot;
-    }
-    lastY = my;
+    const rect = hero.getBoundingClientRect();
+    mouse = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    draw();
   });
 
-  // Leave hero → reset so next entry starts fresh
   hero.addEventListener('mouseleave', () => {
-    lastSlot = -1;
-    lastY    = null;
+    mouse = null;
+    draw();
   });
-
-  rafId = requestAnimationFrame(loop);
 })();
 
 // ════════════════════════════════════════════════
