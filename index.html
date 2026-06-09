@@ -319,6 +319,22 @@
     #mobile-menu { display: none; }
     #mobile-menu.open { display: block; }
 
+    /* ── Sign In modal ── */
+    #signin-modal {
+      position: fixed; inset: 0; z-index: 170;
+      background: rgba(0,0,0,0.82);
+      backdrop-filter: blur(12px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+      padding: 24px 16px;
+    }
+    #signin-modal.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
     /* ── Hero floating orbs ── */
     .orb {
       position: absolute;
@@ -761,6 +777,12 @@
         </button>
 
         <p class="text-center text-gray-600 text-xs mt-4">🔒 Secure checkout via Razorpay · UPI, Cards, Net Banking accepted</p>
+
+        <p class="text-center mt-3">
+          <button onclick="openSignInModal()" class="text-sm font-mono" style="color: var(--gold); background: none; border: none; cursor: pointer; text-decoration: underline; text-underline-offset: 3px;">
+            Already enrolled? Sign In
+          </button>
+        </p>
       </div>
     </div>
   </section>
@@ -897,6 +919,51 @@
 
       <div id="enroll-error-global" class="text-red-400 text-sm text-center mt-3 hidden"></div>
     </form>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     SIGN IN MODAL
+════════════════════════════════════════════ -->
+<div id="signin-modal" role="dialog" aria-modal="true" aria-labelledby="signin-title">
+  <div class="glass-card rounded-2xl p-8 w-full relative" style="max-width: 420px; border-color: rgba(0,200,83,0.25);">
+    <button onclick="closeSignInModal()" class="absolute top-4 right-4 text-gray-600 hover:text-gray-300 text-2xl leading-none transition-colors">×</button>
+
+    <div class="text-center mb-6">
+      <div class="w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-4" style="background: linear-gradient(135deg, #00c853, #00a152);">
+        <span class="text-black font-bold text-xl font-garamond">Ω</span>
+      </div>
+      <h2 id="signin-title" class="font-garamond text-2xl font-bold text-white">Welcome Back</h2>
+      <p class="text-gray-500 text-sm mt-1">Sign in to resume your enrollment</p>
+    </div>
+
+    <form id="signin-form" novalidate>
+      <div class="mb-4">
+        <label class="block text-sm text-gray-400 mb-1.5">Email *</label>
+        <input type="email" id="si-email" name="email" class="fg-input" placeholder="your@email.com" autocomplete="email" />
+        <div class="field-error" id="si-err-email">Please enter a valid email address</div>
+      </div>
+
+      <div class="mb-6">
+        <label class="block text-sm text-gray-400 mb-1.5">Password *</label>
+        <div class="relative">
+          <input type="password" id="si-password" name="password" class="fg-input pr-12" placeholder="Your password" autocomplete="current-password" />
+          <button type="button" onclick="togglePasswordVisibility('si-password', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 text-xs font-mono">SHOW</button>
+        </div>
+        <div class="field-error" id="si-err-password">Please enter your password</div>
+      </div>
+
+      <button type="submit" id="signin-submit-btn" class="btn-gold w-full py-4 rounded-xl font-bold text-base tracking-wide">
+        SIGN IN
+      </button>
+
+      <div id="signin-error-global" class="text-red-400 text-sm text-center mt-3 hidden"></div>
+    </form>
+
+    <p class="text-center text-gray-600 text-xs mt-5">
+      Not enrolled yet?
+      <button onclick="closeSignInModal(); openEnrollModal();" class="font-mono text-xs" style="color: var(--gold); background: none; border: none; cursor: pointer; text-decoration: underline; text-underline-offset: 3px;">Enroll Now</button>
+    </p>
   </div>
 </div>
 
@@ -1475,6 +1542,102 @@ function toggleMobileMenu() {
 
   rafId = requestAnimationFrame(loop);
 })();
+
+// ════════════════════════════════════════════════
+// SIGN IN MODAL
+// ════════════════════════════════════════════════
+function openSignInModal() {
+  document.getElementById('signin-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  // Clear previous state
+  document.getElementById('si-email').value = '';
+  document.getElementById('si-password').value = '';
+  document.getElementById('signin-error-global').classList.add('hidden');
+  document.getElementById('si-err-email').classList.remove('show');
+  document.getElementById('si-err-password').classList.remove('show');
+  document.getElementById('si-email').classList.remove('error');
+  document.getElementById('si-password').classList.remove('error');
+  const btn = document.getElementById('signin-submit-btn');
+  btn.innerHTML = 'SIGN IN';
+  btn.disabled = false;
+}
+
+function closeSignInModal() {
+  document.getElementById('signin-modal').classList.remove('open');
+  document.body.style.overflow = 'auto';
+}
+
+document.getElementById('signin-modal').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('signin-modal')) closeSignInModal();
+});
+
+document.getElementById('signin-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const emailEl = document.getElementById('si-email');
+  const passEl  = document.getElementById('si-password');
+  const globalErr = document.getElementById('signin-error-global');
+
+  // Basic validation
+  let valid = true;
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailEl.value.trim())) {
+    document.getElementById('si-err-email').classList.add('show');
+    emailEl.classList.add('error');
+    valid = false;
+  } else {
+    document.getElementById('si-err-email').classList.remove('show');
+    emailEl.classList.remove('error');
+  }
+  if (!passEl.value) {
+    document.getElementById('si-err-password').classList.add('show');
+    passEl.classList.add('error');
+    valid = false;
+  } else {
+    document.getElementById('si-err-password').classList.remove('show');
+    passEl.classList.remove('error');
+  }
+  if (!valid) return;
+
+  const btn = document.getElementById('signin-submit-btn');
+  btn.innerHTML = '<span class="spinner"></span>';
+  btn.disabled = true;
+  globalErr.classList.add('hidden');
+
+  try {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: emailEl.value.trim(),
+        password: passEl.value,
+      }),
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      globalErr.textContent = data.error || 'Sign in failed. Please try again.';
+      globalErr.classList.remove('hidden');
+      btn.innerHTML = 'SIGN IN';
+      btn.disabled = false;
+      return;
+    }
+
+    if (data.status === 'paid') {
+      closeSignInModal();
+      alert('You are already enrolled! Our team will contact you.');
+      return;
+    }
+
+    // pending — resume payment
+    closeSignInModal();
+    openRazorpay(data);
+  } catch (err) {
+    globalErr.textContent = 'Network error. Please check your connection.';
+    globalErr.classList.remove('hidden');
+    btn.innerHTML = 'SIGN IN';
+    btn.disabled = false;
+  }
+});
 
 // ════════════════════════════════════════════════
 // INIT

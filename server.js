@@ -7,6 +7,7 @@ const path = require('path');
 
 const enrollRouter = require('./routes/enroll');
 const paymentRouter = require('./routes/payment');
+const authRouter = require('./routes/auth');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -50,6 +51,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // API routes
 app.use('/api/enroll', enrollLimiter, enrollRouter);
 app.use('/api/payment', paymentRouter);
+app.use('/api/auth', authRouter);
 
 // Pricing config endpoint (used by Vercel healthcheck too)
 app.get('/api/config', (req, res) => {
