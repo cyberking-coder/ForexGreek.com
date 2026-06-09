@@ -165,7 +165,10 @@
 
     /* ── Hero gradient ── */
     .hero-bg {
-      background: radial-gradient(ellipse 70% 60% at 50% 50%, #0d1f3c 0%, #050d1f 60%, #020810 100%);
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0,200,83,0.10) 0%, transparent 70%),
+                  radial-gradient(ellipse 40% 40% at 5% 90%, rgba(0,200,83,0.06) 0%, transparent 60%),
+                  radial-gradient(ellipse 40% 40% at 95% 10%, rgba(0,200,83,0.06) 0%, transparent 60%),
+                  linear-gradient(180deg, #0d0f0d 0%, #0a0a0a 100%);
     }
     .hero-grid {
       background-image:
