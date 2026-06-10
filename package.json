@@ -19,6 +19,7 @@
     "express-session": "^1.18.0",
     "express-validator": "^7.1.0",
     "mysql2": "^3.10.1",
+    "puppeteer": "^25.1.0",
     "razorpay": "^2.9.2"
   },
   "devDependencies": {
