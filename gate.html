@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ForexGreek — Watch Before You Enter</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230d0d14'/%3E%3Crect x='5' y='8' width='6' height='12' rx='1' fill='%2300c853'/%3E%3Crect x='13' y='13' width='6' height='10' rx='1' fill='%23ff1744'/%3E%3Crect x='21' y='7' width='6' height='13' rx='1' fill='%2300c853'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green: #00c853;
+      --green-dark: #00a152;
+      --green-dim: rgba(0,200,83,0.15);
+      --bg: #080b09;
+      --card: #0f1410;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: #fff;
+      font-family: 'Geist', system-ui, sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* ── Layout ── */
+    .gate-wrap {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 20px 48px;
+      gap: 28px;
+    }
+
+    /* ── Logo / brand ── */
+    .gate-logo {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      letter-spacing: 0.18em;
+      color: var(--green);
+      text-transform: uppercase;
+      opacity: 0.8;
+    }
+
+    /* ── Headline ── */
+    .gate-headline {
+      text-align: center;
+      max-width: 600px;
+    }
+    .gate-eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      color: var(--green);
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .gate-title {
+      font-size: clamp(1.6rem, 4vw, 2.6rem);
+      font-weight: 800;
+      line-height: 1.2;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+    .gate-title span { color: var(--green); }
+    .gate-sub {
+      font-size: 0.95rem;
+      color: #6b7280;
+      line-height: 1.65;
+    }
+
+    /* ── Video container ── */
+    .video-wrap {
+      position: relative;
+      width: 100%;
+      max-width: 860px;
+      background: var(--card);
+      border: 1px solid rgba(0,200,83,0.18);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 0 60px rgba(0,200,83,0.07);
+    }
+
+    video {
+      width: 100%;
+      display: block;
+      max-height: 480px;
+      background: #000;
+      /* disable right-click context menu options */
+      pointer-events: auto;
+    }
+
+    /* ── Progress bar ── */
+    .progress-wrap {
+      padding: 14px 20px 10px;
+      background: var(--card);
+    }
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #6b7280;
+      margin-bottom: 8px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .progress-track {
+      height: 4px;
+      background: rgba(255,255,255,0.07);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--green-dark), var(--green));
+      border-radius: 99px;
+      transition: width 0.3s linear;
+    }
+
+    /* ── Lock overlay (shown when user tries to skip) ── */
+    .skip-toast {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.9);
+      background: rgba(0,0,0,0.85);
+      border: 1px solid rgba(0,200,83,0.3);
+      border-radius: 12px;
+      padding: 16px 28px;
+      font-size: 14px;
+      color: #fff;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      z-index: 10;
+    }
+    .skip-toast.show {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    /* ── CTA button ── */
+    .gate-cta-wrap {
+      text-align: center;
+    }
+    .gate-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(135deg, var(--green), var(--green-dark));
+      color: #000;
+      font-weight: 700;
+      font-size: 1rem;
+      padding: 16px 44px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      letter-spacing: 0.02em;
+      box-shadow: 0 0 32px rgba(0,200,83,0.4);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.3s ease;
+      text-decoration: none;
+    }
+    .gate-cta:hover:not(:disabled) {
+      transform: translateY(-2px) scale(1.04);
+      box-shadow: 0 0 50px rgba(0,200,83,0.6);
+    }
+    .gate-cta:disabled,
+    .gate-cta.locked {
+      background: #1c2b1e;
+      color: #3a4f3c;
+      box-shadow: none;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .gate-cta-hint {
+      margin-top: 12px;
+      font-size: 12px;
+      color: #4b5563;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .gate-cta-hint.unlocked {
+      color: var(--green);
+    }
+
+    /* Glowing cursor */
+    #glow {
+      position: fixed;
+      width: 380px; height: 380px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      background: radial-gradient(circle, rgba(0,200,83,0.06) 0%, transparent 70%);
+      transform: translate(-50%, -50%);
+      transition: opacity 0.3s ease;
+      opacity: 0;
+    }
+  </style>
+</head>
+<body>
+
+<div id="glow"></div>
+
+<div class="gate-wrap">
+
+  <div class="gate-logo">⬡ ForexGreek Trading Academy</div>
+
+  <div class="gate-headline">
+    <p class="gate-eyebrow">Before You Enter</p>
+    <h1 class="gate-title">Watch This <span>2-Minute Message</span><br>From Your Mentor</h1>
+    <p class="gate-sub">Rohan has a quick message for you before you see the course. Watch it fully to unlock access.</p>
+  </div>
+
+  <!-- Video -->
+  <div class="video-wrap" id="videoWrap">
+    <!--
+      Replace src with your actual video file.
+      Upload your ad/intro video to /public/ and update the src below.
+      Example: src="/intro-video.mp4"
+    -->
+    <video
+      id="gateVideo"
+      src="/intro-video.mp4"
+      playsinline
+      preload="metadata"
+    ></video>
+
+    <div class="progress-wrap">
+      <div class="progress-label">
+        <span id="timeLabel">0:00 / 0:00</span>
+        <span id="pctLabel">0%</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+
+    <div class="skip-toast" id="skipToast">⛔ Please watch the full video to continue</div>
+  </div>
+
+  <!-- CTA -->
+  <div class="gate-cta-wrap">
+    <button class="gate-cta locked" id="enterBtn" disabled>
+      <span id="btnText">Watch the full video to unlock</span>
+      <span id="btnArrow" style="display:none;">→</span>
+    </button>
+    <p class="gate-cta-hint" id="ctatHint">Button unlocks when video ends</p>
+  </div>
+
+</div>
+
+<script>
+(function() {
+  const video     = document.getElementById('gateVideo');
+  const fill      = document.getElementById('progressFill');
+  const timeLabel = document.getElementById('timeLabel');
+  const pctLabel  = document.getElementById('pctLabel');
+  const skipToast = document.getElementById('skipToast');
+  const enterBtn  = document.getElementById('enterBtn');
+  const btnText   = document.getElementById('btnText');
+  const btnArrow  = document.getElementById('btnArrow');
+  const hint      = document.getElementById('ctatHint');
+
+  let maxReached  = 0; // furthest second the user has legitimately watched
+  let unlocked    = false;
+  let toastTimer;
+
+  function fmt(s) {
+    s = Math.floor(s);
+    return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+  }
+
+  // Allow click-to-play/pause but block seeking ahead
+  video.addEventListener('click', () => {
+    video.paused ? video.play() : video.pause();
+  });
+
+  // Auto-play when ready
+  video.addEventListener('canplay', () => {
+    video.play().catch(() => {});
+  });
+
+  // Track progress — update bar and block forward seeks
+  video.addEventListener('timeupdate', () => {
+    const dur = video.duration || 0;
+    const cur = video.currentTime;
+
+    // Block seeking ahead of what's been watched
+    if (cur > maxReached + 2) {
+      video.currentTime = maxReached;
+      showToast();
+      return;
+    }
+
+    if (cur > maxReached) maxReached = cur;
+
+    const pct = dur ? (cur / dur) * 100 : 0;
+    fill.style.width = pct + '%';
+    pctLabel.textContent = Math.floor(pct) + '%';
+    timeLabel.textContent = fmt(cur) + ' / ' + fmt(dur);
+  });
+
+  // Disable the native seek bar (remove controls, handle via timeupdate above)
+  video.removeAttribute('controls');
+
+  // Unlock button when video ends
+  video.addEventListener('ended', unlock);
+
+  // Also unlock at 98% in case 'ended' fires slightly early
+  video.addEventListener('timeupdate', () => {
+    if (!unlocked && video.duration && video.currentTime / video.duration >= 0.98) unlock();
+  });
+
+  function unlock() {
+    if (unlocked) return;
+    unlocked = true;
+    enterBtn.disabled = false;
+    enterBtn.classList.remove('locked');
+    btnText.textContent = 'Enter the Academy';
+    btnArrow.style.display = 'inline';
+    hint.textContent = '✓ Video complete — you\'re in!';
+    hint.classList.add('unlocked');
+  }
+
+  enterBtn.addEventListener('click', () => {
+    if (!unlocked) return;
+    // Pass flag so index.html auto-opens the offer modal
+    window.location.href = '/?offer=1';
+  });
+
+  function showToast() {
+    clearTimeout(toastTimer);
+    skipToast.classList.add('show');
+    toastTimer = setTimeout(() => skipToast.classList.remove('show'), 2200);
+  }
+
+  // Glowing cursor
+  const glow = document.getElementById('glow');
+  document.addEventListener('mousemove', e => {
+    glow.style.left = e.clientX + 'px';
+    glow.style.top  = e.clientY + 'px';
+    glow.style.opacity = '1';
+  });
+  document.addEventListener('mouseleave', () => { glow.style.opacity = '0'; });
+})();
+</script>
+
+</body>
+</html>

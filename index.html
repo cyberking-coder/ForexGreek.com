@@ -2237,6 +2237,13 @@ document.addEventListener('DOMContentLoaded', () => {
   setupStickyHeader();
   initBatchCountdown();
 
+  // Auto-open enroll modal when arriving from the video gate
+  if (new URLSearchParams(window.location.search).get('offer') === '1') {
+    setTimeout(openEnrollModal, 800);
+    // Clean URL without reloading
+    history.replaceState(null, '', window.location.pathname);
+  }
+
   if (sessionStorage.getItem('fg_video_watched') === 'true') {
     if (sessionStorage.getItem('fg_timer_start')) {
       const remaining = getTimerMs();
