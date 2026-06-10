@@ -326,48 +326,65 @@
       background: linear-gradient(90deg, transparent, rgba(0,200,83,0.2), transparent);
     }
 
-    /* ── Testimonial slider ── */
-    .tsl-outer {
-      display: flex;
-      align-items: center;
-      gap: 12px;
+    /* ── Testimonial slider (depth/stage style) ── */
+    .tsl-stage {
+      position: relative;
       width: 100%;
-    }
-    .tsl-viewport {
-      flex: 1;
-      overflow: hidden;
-    }
-    .tsl-track {
-      display: flex;
-      gap: 24px;
-      transition: transform 0.5s cubic-bezier(0.4,0,0.2,1);
-      will-change: transform;
+      max-width: 620px;
+      margin: 0 auto;
+      height: 260px;
+      perspective: 1000px;
     }
     .tsl-card {
-      flex: 0 0 calc((100% - 48px) / 3);
-    }
-    @media (max-width: 900px) {
-      .tsl-card { flex: 0 0 calc((100% - 24px) / 2); }
-    }
-    @media (max-width: 600px) {
-      .tsl-card { flex: 0 0 100%; }
-      .tsl-outer { gap: 6px; }
-    }
-    .tsl-arrow {
-      flex-shrink: 0;
-      width: 44px; height: 44px;
-      border-radius: 50%;
-      border: 1px solid rgba(0,200,83,0.35);
-      background: rgba(0,200,83,0.07);
-      color: #00c853;
-      font-size: 18px;
+      position: absolute;
+      inset: 0;
+      border-radius: 16px;
+      padding: 28px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
       cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      transition: background 0.2s, border-color 0.2s, transform 0.15s;
+      transform-style: preserve-3d;
+      transition: transform 0.6s cubic-bezier(0.4,0,0.2,1),
+                  opacity 0.6s ease,
+                  box-shadow 0.6s ease,
+                  border-color 0.4s ease;
+      will-change: transform, opacity;
       user-select: none;
     }
-    .tsl-arrow:hover { background: rgba(0,200,83,0.18); border-color: #00c853; transform: scale(1.08); }
-    .tsl-arrow:disabled { opacity: 0.25; cursor: default; transform: none; }
+    /* front — active */
+    .tsl-card[data-pos="0"] {
+      transform: translateZ(0px) scale(1);
+      opacity: 1;
+      z-index: 5;
+      border-color: rgba(0,200,83,0.45);
+      box-shadow: 0 0 32px rgba(0,200,83,0.12);
+    }
+    /* one step behind */
+    .tsl-card[data-pos="1"],
+    .tsl-card[data-pos="-1"] {
+      transform: translateZ(-80px) scale(0.88);
+      opacity: 0.45;
+      z-index: 3;
+    }
+    /* two steps behind */
+    .tsl-card[data-pos="2"],
+    .tsl-card[data-pos="-2"] {
+      transform: translateZ(-140px) scale(0.76);
+      opacity: 0.2;
+      z-index: 1;
+    }
+    /* everything else — hidden */
+    .tsl-card[data-pos="3"],
+    .tsl-card[data-pos="-3"],
+    .tsl-card[data-pos="4"],
+    .tsl-card[data-pos="-4"],
+    .tsl-card[data-pos="5"],
+    .tsl-card[data-pos="-5"] {
+      transform: translateZ(-180px) scale(0.65);
+      opacity: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
     .tsl-dots {
       display: flex;
       justify-content: center;
@@ -390,7 +407,7 @@
       font-weight: 700;
       color: rgba(0,200,83,0.35);
       line-height: 1;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
     }
     .tsl-avatar {
       width: 40px; height: 40px;
@@ -1169,84 +1186,72 @@
       </p>
     </div>
 
-    <!-- Slider wrapper -->
-    <div class="tsl-outer" id="tslOuter">
-      <button class="tsl-arrow tsl-prev" id="tslPrev" aria-label="Previous">&#8592;</button>
-      <div class="tsl-viewport" id="tslViewport">
-        <div class="tsl-track" id="tslTrack">
+    <!-- Stage: cards stack in 3D depth -->
+    <div class="tsl-stage" id="tslStage">
 
-          <!-- 1 -->
-          <div class="testimonial-card tsl-card">
-            <div class="tsl-quote">"</div>
-            <div class="text-gold text-sm mb-4">★★★★★</div>
-            <p class="text-gray-400 text-sm leading-relaxed mb-6">This course changed my life. I went from consistently losing money to making profitable trades. The live sessions and practical approach make all the difference.</p>
-            <div class="flex items-center gap-3">
-              <div class="tsl-avatar">R</div>
-              <div><div class="font-semibold text-white text-sm">Raj Patel</div><div class="text-xs text-gray-500">Mumbai</div></div>
-            </div>
-          </div>
-
-          <!-- 2 -->
-          <div class="testimonial-card tsl-card">
-            <div class="tsl-quote">"</div>
-            <div class="text-gold text-sm mb-4">★★★★★</div>
-            <p class="text-gray-400 text-sm leading-relaxed mb-6">The best forex course I've taken. Rohan's teaching style is practical and easy to understand. I'm now trading with confidence and seeing consistent results.</p>
-            <div class="flex items-center gap-3">
-              <div class="tsl-avatar">P</div>
-              <div><div class="font-semibold text-white text-sm">Priya Singh</div><div class="text-xs text-gray-500">Delhi</div></div>
-            </div>
-          </div>
-
-          <!-- 3 -->
-          <div class="testimonial-card tsl-card">
-            <div class="tsl-quote">"</div>
-            <div class="text-gold text-sm mb-4">★★★★★</div>
-            <p class="text-gray-400 text-sm leading-relaxed mb-6">I was skeptical at first, but the results speak for themselves. The risk management techniques alone were worth the investment. Highly recommend!</p>
-            <div class="flex items-center gap-3">
-              <div class="tsl-avatar">A</div>
-              <div><div class="font-semibold text-white text-sm">Amit Sharma</div><div class="text-xs text-gray-500">Bangalore</div></div>
-            </div>
-          </div>
-
-          <!-- 4 -->
-          <div class="testimonial-card tsl-card">
-            <div class="tsl-quote">"</div>
-            <div class="text-gold text-sm mb-4">★★★★★</div>
-            <p class="text-gray-400 text-sm leading-relaxed mb-6">I tried three other courses before this one. Nothing came close. The smart money concepts Rohan teaches are exactly what the pros use. My win rate jumped from 40% to 68% in 6 weeks.</p>
-            <div class="flex items-center gap-3">
-              <div class="tsl-avatar">K</div>
-              <div><div class="font-semibold text-white text-sm">Karan Mehta</div><div class="text-xs text-gray-500">Pune</div></div>
-            </div>
-          </div>
-
-          <!-- 5 -->
-          <div class="testimonial-card tsl-card">
-            <div class="tsl-quote">"</div>
-            <div class="text-gold text-sm mb-4">★★★★★</div>
-            <p class="text-gray-400 text-sm leading-relaxed mb-6">As a working professional I had very limited time, but the recorded sessions and tight curriculum made it possible. I now trade 1–2 hours a day and cover my monthly salary in less than two weeks.</p>
-            <div class="flex items-center gap-3">
-              <div class="tsl-avatar">S</div>
-              <div><div class="font-semibold text-white text-sm">Sneha Nair</div><div class="text-xs text-gray-500">Hyderabad</div></div>
-            </div>
-          </div>
-
-          <!-- 6 -->
-          <div class="testimonial-card tsl-card">
-            <div class="tsl-quote">"</div>
-            <div class="text-gold text-sm mb-4">★★★★★</div>
-            <p class="text-gray-400 text-sm leading-relaxed mb-6">The psychology module alone is worth 10x the price. I used to revenge-trade and blow accounts. Now I follow the rules, protect my capital, and grow it steadily. Life-changing mindset shift.</p>
-            <div class="flex items-center gap-3">
-              <div class="tsl-avatar">V</div>
-              <div><div class="font-semibold text-white text-sm">Vikram Desai</div><div class="text-xs text-gray-500">Ahmedabad</div></div>
-            </div>
-          </div>
-
+      <div class="tsl-card" data-index="0">
+        <div class="tsl-quote">"</div>
+        <div class="text-gold text-sm mb-3">★★★★★</div>
+        <p class="text-gray-400 text-sm leading-relaxed mb-5">This course changed my life. I went from consistently losing money to making profitable trades. The live sessions and practical approach make all the difference.</p>
+        <div class="flex items-center gap-3">
+          <div class="tsl-avatar">R</div>
+          <div><div class="font-semibold text-white text-sm">Raj Patel</div><div class="text-xs text-gray-500">Mumbai</div></div>
         </div>
       </div>
-      <button class="tsl-arrow tsl-next" id="tslNext" aria-label="Next">&#8594;</button>
+
+      <div class="tsl-card" data-index="1">
+        <div class="tsl-quote">"</div>
+        <div class="text-gold text-sm mb-3">★★★★★</div>
+        <p class="text-gray-400 text-sm leading-relaxed mb-5">The best forex course I've taken. Rohan's teaching style is practical and easy to understand. I'm now trading with confidence and seeing consistent results.</p>
+        <div class="flex items-center gap-3">
+          <div class="tsl-avatar">P</div>
+          <div><div class="font-semibold text-white text-sm">Priya Singh</div><div class="text-xs text-gray-500">Delhi</div></div>
+        </div>
+      </div>
+
+      <div class="tsl-card" data-index="2">
+        <div class="tsl-quote">"</div>
+        <div class="text-gold text-sm mb-3">★★★★★</div>
+        <p class="text-gray-400 text-sm leading-relaxed mb-5">I was skeptical at first, but the results speak for themselves. The risk management techniques alone were worth the investment. Highly recommend!</p>
+        <div class="flex items-center gap-3">
+          <div class="tsl-avatar">A</div>
+          <div><div class="font-semibold text-white text-sm">Amit Sharma</div><div class="text-xs text-gray-500">Bangalore</div></div>
+        </div>
+      </div>
+
+      <div class="tsl-card" data-index="3">
+        <div class="tsl-quote">"</div>
+        <div class="text-gold text-sm mb-3">★★★★★</div>
+        <p class="text-gray-400 text-sm leading-relaxed mb-5">I tried three other courses before this one. Nothing came close. The smart money concepts Rohan teaches are exactly what the pros use. My win rate jumped from 40% to 68% in 6 weeks.</p>
+        <div class="flex items-center gap-3">
+          <div class="tsl-avatar">K</div>
+          <div><div class="font-semibold text-white text-sm">Karan Mehta</div><div class="text-xs text-gray-500">Pune</div></div>
+        </div>
+      </div>
+
+      <div class="tsl-card" data-index="4">
+        <div class="tsl-quote">"</div>
+        <div class="text-gold text-sm mb-3">★★★★★</div>
+        <p class="text-gray-400 text-sm leading-relaxed mb-5">As a working professional I had very limited time, but the recorded sessions and tight curriculum made it possible. I now trade 1–2 hours a day and cover my monthly salary in less than two weeks.</p>
+        <div class="flex items-center gap-3">
+          <div class="tsl-avatar">S</div>
+          <div><div class="font-semibold text-white text-sm">Sneha Nair</div><div class="text-xs text-gray-500">Hyderabad</div></div>
+        </div>
+      </div>
+
+      <div class="tsl-card" data-index="5">
+        <div class="tsl-quote">"</div>
+        <div class="text-gold text-sm mb-3">★★★★★</div>
+        <p class="text-gray-400 text-sm leading-relaxed mb-5">The psychology module alone is worth 10x the price. I used to revenge-trade and blow accounts. Now I follow the rules, protect my capital, and grow it steadily. Life-changing mindset shift.</p>
+        <div class="flex items-center gap-3">
+          <div class="tsl-avatar">V</div>
+          <div><div class="font-semibold text-white text-sm">Vikram Desai</div><div class="text-xs text-gray-500">Ahmedabad</div></div>
+        </div>
+      </div>
+
     </div>
 
-    <!-- Dot indicators -->
+    <!-- 6 dots -->
     <div class="tsl-dots" id="tslDots"></div>
   </section>
 
@@ -2227,97 +2232,55 @@ document.addEventListener('DOMContentLoaded', () => {
   onScroll();
 })();
 
-// ── Testimonial slider ──────────────────────────────────────────────
+// ── Testimonial depth slider ─────────────────────────────────────────
 (function() {
-  const track    = document.getElementById('tslTrack');
-  const viewport = document.getElementById('tslViewport');
+  const stage    = document.getElementById('tslStage');
   const dotsWrap = document.getElementById('tslDots');
-  const btnPrev  = document.getElementById('tslPrev');
-  const btnNext  = document.getElementById('tslNext');
-  if (!track) return;
+  if (!stage) return;
 
-  const cards = Array.from(track.querySelectorAll('.tsl-card'));
+  const cards = Array.from(stage.querySelectorAll('.tsl-card'));
   const total = cards.length;
-  let perPage = 3;
   let current = 0;
   let autoTimer;
 
-  function getPerPage() {
-    const w = window.innerWidth;
-    if (w <= 600) return 1;
-    if (w <= 900) return 2;
-    return 3;
-  }
-
-  function maxIndex() { return Math.ceil(total / perPage) - 1; }
-
-  // Build dots
-  function buildDots() {
-    dotsWrap.innerHTML = '';
-    for (let i = 0; i <= maxIndex(); i++) {
-      const d = document.createElement('span');
-      d.className = 'tsl-dot' + (i === current ? ' active' : '');
-      d.addEventListener('click', () => goTo(i));
-      dotsWrap.appendChild(d);
-    }
-  }
-
-  function updateDots() {
-    Array.from(dotsWrap.children).forEach((d, i) => {
-      d.classList.toggle('active', i === current);
-    });
-  }
+  // Build 6 dots
+  cards.forEach((_, i) => {
+    const d = document.createElement('span');
+    d.className = 'tsl-dot' + (i === 0 ? ' active' : '');
+    d.addEventListener('click', () => { goTo(i); resetAuto(); });
+    dotsWrap.appendChild(d);
+  });
 
   function goTo(index) {
-    perPage = getPerPage();
-    current = Math.max(0, Math.min(index, maxIndex()));
-    const cardW = cards[0].getBoundingClientRect().width;
-    const gap = 24;
-    const offset = current * perPage * (cardW + gap);
-    track.style.transform = `translateX(-${offset}px)`;
-    btnPrev.disabled = current === 0;
-    btnNext.disabled = current >= maxIndex();
-    updateDots();
+    current = ((index % total) + total) % total;
+    cards.forEach((card, i) => {
+      // pos: 0=front, positive=behind going forward, negative=behind going back
+      let pos = i - current;
+      // wrap so pos stays in range -(total/2) .. +(total/2)
+      if (pos > total / 2)  pos -= total;
+      if (pos < -total / 2) pos += total;
+      card.setAttribute('data-pos', pos);
+    });
+    Array.from(dotsWrap.children).forEach((d, i) => d.classList.toggle('active', i === current));
   }
 
   function next() { goTo(current + 1); }
-  function prev() { goTo(current - 1); }
 
-  function startAuto() {
+  function resetAuto() {
     clearInterval(autoTimer);
-    autoTimer = setInterval(() => {
-      goTo(current >= maxIndex() ? 0 : current + 1);
-    }, 4000);
+    autoTimer = setInterval(next, 4000);
   }
 
-  function resetAuto() { startAuto(); }
-
-  btnNext.addEventListener('click', () => { next(); resetAuto(); });
-  btnPrev.addEventListener('click', () => { prev(); resetAuto(); });
-
-  // Touch / drag
-  let dragStartX = 0, dragging = false;
-  viewport.addEventListener('pointerdown', e => { dragStartX = e.clientX; dragging = true; });
-  viewport.addEventListener('pointermove', e => { if (!dragging) return; });
-  viewport.addEventListener('pointerup', e => {
-    if (!dragging) return;
-    dragging = false;
-    const dx = e.clientX - dragStartX;
-    if (Math.abs(dx) > 50) { dx < 0 ? next() : prev(); resetAuto(); }
+  // Swipe support
+  let sx = 0;
+  stage.addEventListener('pointerdown', e => { sx = e.clientX; });
+  stage.addEventListener('pointerup', e => {
+    const dx = e.clientX - sx;
+    if (Math.abs(dx) > 50) { dx < 0 ? goTo(current + 1) : goTo(current - 1); resetAuto(); }
   });
-  viewport.addEventListener('pointercancel', () => { dragging = false; });
 
-  // Init & resize
-  function init() {
-    perPage = getPerPage();
-    current = Math.min(current, maxIndex());
-    buildDots();
-    goTo(current);
-    startAuto();
-  }
-
-  window.addEventListener('resize', init);
-  init();
+  goTo(0);
+  resetAuto();
 })();
 
 // Glowing cursor effect
