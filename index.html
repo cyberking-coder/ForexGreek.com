@@ -561,44 +561,49 @@
       transition: box-shadow 0.5s ease, border-color 0.5s ease;
     }
     .tl-num {
-      color: rgba(0,200,83,0.5);
+      color: rgba(0,200,83,0.35);
       font-family: 'JetBrains Mono', monospace;
       font-weight: 700;
       font-size: 16px;
-      transition: color 0.5s ease;
+      transition: color 0.5s ease, text-shadow 0.5s ease;
     }
-    /* Active circle */
+    /* Active circle — full glow ring */
     .tl-item.tl-active .tl-circle {
-      box-shadow: 0 0 0 6px rgba(0,200,83,0.1), 0 0 24px rgba(0,200,83,0.5);
+      background: rgba(0,200,83,0.08);
       border-color: #00c853;
+      box-shadow: 0 0 0 5px rgba(0,200,83,0.15), 0 0 30px rgba(0,200,83,0.6);
     }
+    /* Active number — bright white + green glow */
     .tl-item.tl-active .tl-num {
-      color: #00c853;
+      color: #ffffff;
+      text-shadow: 0 0 10px #00c853, 0 0 24px rgba(0,200,83,0.7);
     }
-    /* Content card */
+    /* Content card — hidden by default */
     .tl-card {
       width: 42%;
       background: #111614;
       border: 1px solid rgba(0,200,83,0.15);
       border-radius: 16px;
       padding: 24px;
-      opacity: 0.3;
-      transition: opacity 0.6s ease, transform 0.6s ease, border-color 0.5s ease, box-shadow 0.5s ease;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease, transform 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
     }
     .tl-left .tl-card {
       margin-right: calc(50% + 40px);
-      transform: translateX(-24px);
+      transform: translateX(-32px);
     }
     .tl-right .tl-card {
       margin-left: calc(50% + 40px);
-      transform: translateX(24px);
+      transform: translateX(32px);
     }
-    /* Active card */
+    /* Active card — slides in and fully visible */
     .tl-item.tl-active .tl-card {
       opacity: 1;
+      pointer-events: auto;
       transform: translateX(0);
-      border-color: rgba(0,200,83,0.5);
-      box-shadow: 0 0 20px rgba(0,200,83,0.1);
+      border-color: rgba(0,200,83,0.55);
+      box-shadow: 0 0 28px rgba(0,200,83,0.13);
     }
     .tl-card-icon {
       width: 44px;
@@ -647,11 +652,11 @@
       .tl-left .tl-card {
         margin-right: 0;
         margin-left: 72px;
-        transform: translateX(16px);
+        transform: translateX(20px);
       }
       .tl-right .tl-card {
         margin-left: 72px;
-        transform: translateX(16px);
+        transform: translateX(20px);
       }
       .tl-item.tl-active .tl-card {
         transform: translateX(0);
@@ -2045,43 +2050,63 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 <script>
-// ── Timeline Roadmap: IntersectionObserver + traveling dot ──────────
+// ── Timeline Roadmap: scroll-driven, one active at a time, reversible ──
 (function() {
-  const items = document.querySelectorAll('.tl-item');
+  const items = Array.from(document.querySelectorAll('.tl-item'));
   const roadmap = document.getElementById('tlRoadmap');
   const travelDot = document.getElementById('tlTravelDot');
 
   if (!roadmap || !items.length) return;
 
-  // Activate items as they enter viewport
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const item = entry.target;
-        item.classList.add('tl-active');
-        // Animate the line segment to fill from 0 to half the item height (reaching the circle)
-        const seg = item.querySelector('.tl-line-segment');
-        if (seg) seg.style.height = '50%';
+  let currentActive = -1;
+
+  function getActiveIndex() {
+    const viewMid = window.innerHeight * 0.52; // slightly below center feels natural
+    let best = -1;
+    let bestDist = Infinity;
+    items.forEach((item, i) => {
+      const rect = item.getBoundingClientRect();
+      const circleMid = rect.top + rect.height / 2;
+      const dist = Math.abs(circleMid - viewMid);
+      if (rect.top < window.innerHeight * 0.85 && rect.bottom > window.innerHeight * 0.15 && dist < bestDist) {
+        bestDist = dist;
+        best = i;
       }
     });
-  }, { threshold: 0.35 });
+    return best;
+  }
 
-  items.forEach(item => io.observe(item));
+  function activate(index) {
+    if (index === currentActive) return;
+    currentActive = index;
+    items.forEach((item, i) => {
+      const seg = item.querySelector('.tl-line-segment');
+      if (i === index) {
+        item.classList.add('tl-active');
+        if (seg) seg.style.height = '50%';
+      } else {
+        item.classList.remove('tl-active');
+        if (seg) seg.style.height = '0';
+      }
+    });
+  }
 
-  // Traveling dot: move down the center spine as user scrolls through the section
   function updateTravelDot() {
     if (!travelDot || !roadmap) return;
     const rect = roadmap.getBoundingClientRect();
     const totalH = roadmap.offsetHeight;
     const viewH = window.innerHeight;
-
-    // progress: 0 when section top hits bottom of viewport, 1 when section bottom hits top
     const progress = Math.min(1, Math.max(0, (viewH - rect.top) / (viewH + totalH)));
     travelDot.style.top = (progress * totalH) + 'px';
   }
 
-  window.addEventListener('scroll', updateTravelDot, { passive: true });
-  updateTravelDot();
+  function onScroll() {
+    activate(getActiveIndex());
+    updateTravelDot();
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
 })();
 
 // Glowing cursor effect
