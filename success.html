@@ -4,140 +4,319 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Welcome to ForexGreek — Enrollment Confirmed!</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230d0d14'/%3E%3Crect x='5' y='8' width='6' height='12' rx='1' fill='%2300c853'/%3E%3Crect x='13' y='13' width='6' height='10' rx='1' fill='%23ff1744'/%3E%3Crect x='21' y='7' width='6' height='13' rx='1' fill='%2300c853'/%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Geist:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    :root { --gold: #e9c349; }
-    body { font-family: 'Geist', sans-serif; background: #0a0a0f; color: #e8e6e0; }
-    .glass-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(233,195,73,0.2); backdrop-filter: blur(16px); }
-    .hero-bg {
-      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(233,195,73,0.1) 0%, transparent 70%),
-                  linear-gradient(180deg, #0d0d14 0%, #0a0a0f 100%);
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green: #00c853;
+      --green-dark: #00a152;
+      --green-dim: rgba(0,200,83,0.12);
+      --bg: #080b09;
+      --card: #0f1410;
+      --border: rgba(0,200,83,0.15);
     }
-    .text-gold-gradient {
-      background: linear-gradient(135deg, #f2d675 0%, #e9c349 50%, #c9a227 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+
+    body {
+      font-family: 'Geist', system-ui, sans-serif;
+      background: var(--bg);
+      color: #e5e7eb;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 20px 48px;
+      overflow-x: hidden;
     }
-    @keyframes confettiFall {
-      0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
-      100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+
+    /* radial glow at top */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(0,200,83,0.06) 0%, transparent 65%);
+      pointer-events: none;
+      z-index: 0;
     }
+
+    .wrap {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 520px;
+      text-align: center;
+    }
+
+    /* logo */
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 36px;
+    }
+    .logo-icon {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--green), var(--green-dark));
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 18px; color: #000;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .logo-name {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    /* check circle */
+    .check-ring {
+      width: 88px; height: 88px;
+      border-radius: 50%;
+      background: rgba(0,200,83,0.07);
+      border: 2px solid rgba(0,200,83,0.4);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 28px;
+      animation: checkPop 0.6s 0.2s ease both;
+    }
+    @keyframes checkPop {
+      0%   { transform: scale(0); opacity: 0; }
+      65%  { transform: scale(1.15); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* headline */
+    .headline {
+      font-size: clamp(2rem, 5vw, 2.8rem);
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.2;
+      margin-bottom: 14px;
+      animation: fadeUp 0.6s 0.3s ease both;
+    }
+    .headline span { color: var(--green); }
+
+    .subline {
+      color: #6b7280;
+      font-size: 1rem;
+      line-height: 1.65;
+      margin-bottom: 36px;
+      animation: fadeUp 0.6s 0.45s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* card */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px 28px;
+      margin-bottom: 28px;
+      text-align: left;
+      animation: fadeUp 0.6s 0.55s ease both;
+    }
+    .card-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 22px;
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 0.05em;
+    }
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .step:last-child { border-bottom: none; padding-bottom: 0; }
+    .step:first-child { padding-top: 0; }
+    .step-num {
+      flex-shrink: 0;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--green), var(--green-dark));
+      color: #000;
+      font-weight: 700;
+      font-size: 13px;
+      font-family: 'JetBrains Mono', monospace;
+      display: flex; align-items: center; justify-content: center;
+      margin-top: 1px;
+    }
+    .step-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 3px;
+    }
+    .step-desc {
+      font-size: 13px;
+      color: #6b7280;
+      line-height: 1.55;
+    }
+
+    /* share row */
+    .share-row {
+      animation: fadeUp 0.6s 0.7s ease both;
+    }
+    .share-label {
+      font-size: 12px;
+      color: #4b5563;
+      margin-bottom: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 0.08em;
+    }
+    .share-btns {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+    .share-btn {
+      padding: 9px 20px;
+      border-radius: 10px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: #9ca3af;
+      font-size: 13px;
+      text-decoration: none;
+      transition: border-color 0.2s, color 0.2s, box-shadow 0.2s;
+    }
+    .share-btn:hover {
+      border-color: var(--green);
+      color: var(--green);
+      box-shadow: 0 0 14px rgba(0,200,83,0.12);
+    }
+
+    /* confetti */
     .confetti-piece {
       position: fixed;
       top: -10px;
-      width: 10px; height: 10px;
+      width: 8px; height: 8px;
       border-radius: 2px;
-      animation: confettiFall linear forwards;
       pointer-events: none;
+      animation: confettiFall linear forwards;
     }
-    @keyframes checkPop {
-      0% { transform: scale(0); opacity: 0; }
-      60% { transform: scale(1.2); }
-      100% { transform: scale(1); opacity: 1; }
+    @keyframes confettiFall {
+      0%   { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(540deg); opacity: 0; }
     }
-    .check-icon { animation: checkPop 0.6s 0.3s ease both; }
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-    .fade-up { animation: fadeUp 0.6s ease both; }
-    .btn-gold { background: linear-gradient(135deg, #f2d675, #c9a227); color: #0a0a0f; font-weight: 700; transition: transform 0.15s, box-shadow 0.15s; }
-    .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(233,195,73,0.35); }
+
+    /* glowing cursor */
+    #glow {
+      position: fixed;
+      width: 380px; height: 380px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      background: radial-gradient(circle, rgba(0,200,83,0.06) 0%, transparent 70%);
+      transform: translate(-50%, -50%);
+      transition: opacity 0.3s ease;
+      opacity: 0;
+    }
   </style>
 </head>
-<body class="min-h-screen hero-bg flex flex-col items-center justify-center p-6 overflow-hidden">
+<body>
 
-  <div class="w-full max-w-lg text-center">
+<div id="glow"></div>
 
-    <!-- Logo -->
-    <div class="inline-flex items-center gap-2 mb-8 fade-up" style="animation-delay:0s;">
-      <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(135deg, #e9c349, #c9a227);">
-        <span class="text-black font-bold text-xl" style="font-family:'EB Garamond',serif;">Ω</span>
-      </div>
-      <span class="font-bold text-white text-2xl" style="font-family:'EB Garamond',serif;">ForexGreek</span>
-    </div>
+<div class="wrap">
 
-    <!-- Check icon -->
-    <div class="check-icon w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6" style="background: linear-gradient(135deg, rgba(74,222,128,0.2), rgba(74,222,128,0.05)); border: 2px solid rgba(74,222,128,0.4);">
-      <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="20 6 9 17 4 12"/>
-      </svg>
-    </div>
-
-    <!-- Headline -->
-    <h1 class="fade-up font-garamond text-4xl md:text-5xl font-bold mb-4 leading-tight" style="font-family:'EB Garamond',serif; animation-delay:0.2s;">
-      Welcome to<br/><span class="text-gold-gradient">Olympian Ascension</span>
-    </h1>
-
-    <p class="fade-up text-gray-400 text-lg mb-8" style="animation-delay:0.35s;">
-      Your enrollment is confirmed. You've taken the first step toward mastering the markets.
-    </p>
-
-    <!-- Glass card: next steps -->
-    <div class="glass-card rounded-2xl p-8 mb-8 fade-up text-left" style="animation-delay:0.5s;">
-      <h2 class="font-semibold text-white mb-5 text-lg" style="font-family:'EB Garamond',serif;">What Happens Next</h2>
-      <div class="space-y-4">
-        <div class="flex items-start gap-4">
-          <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 font-mono text-sm font-bold text-black" style="background: var(--gold); margin-top:2px;">1</div>
-          <div>
-            <div class="text-white font-medium text-sm">Check Your Email</div>
-            <div class="text-gray-500 text-sm mt-0.5">Login credentials and course access link sent within 5 minutes.</div>
-          </div>
-        </div>
-        <div class="flex items-start gap-4">
-          <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 font-mono text-sm font-bold text-black" style="background: var(--gold); margin-top:2px;">2</div>
-          <div>
-            <div class="text-white font-medium text-sm">Join the Olympians Community</div>
-            <div class="text-gray-500 text-sm mt-0.5">A WhatsApp/Telegram invite will be sent. Connect with 2,400+ fellow traders.</div>
-          </div>
-        </div>
-        <div class="flex items-start gap-4">
-          <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 font-mono text-sm font-bold text-black" style="background: var(--gold); margin-top:2px;">3</div>
-          <div>
-            <div class="text-white font-medium text-sm">Start Module 1 Today</div>
-            <div class="text-gray-500 text-sm mt-0.5">Market Structure Mastery — 3 hours of content ready to stream immediately.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Social share hint -->
-    <div class="fade-up" style="animation-delay:0.65s;">
-      <p class="text-gray-600 text-sm mb-4">Share your enrollment with the trading community:</p>
-      <div class="flex gap-3 justify-center">
-        <a href="https://twitter.com/intent/tweet?text=Just+enrolled+in+%40ForexGreek+Olympian+Ascension+%F0%9F%8F%9B%EF%B8%8F+Time+to+trade+like+the+gods.+%23ForexGreek+%23Forex" target="_blank" rel="noopener" class="glass-card px-4 py-2 rounded-lg text-sm text-gray-300 hover:text-gold transition-colors" style="border-color:rgba(233,195,73,0.2);">
-          Twitter/X
-        </a>
-        <a href="https://wa.me/?text=Just+enrolled+in+ForexGreek+Olympian+Ascension+%F0%9F%8F%9B%EF%B8%8F+Trade+like+the+gods.+Check+it+out!" target="_blank" rel="noopener" class="glass-card px-4 py-2 rounded-lg text-sm text-gray-300 hover:text-gold transition-colors" style="border-color:rgba(233,195,73,0.2);">
-          WhatsApp
-        </a>
-      </div>
-    </div>
-
+  <!-- Logo -->
+  <div class="logo">
+    <div class="logo-icon">FG</div>
+    <span class="logo-name">ForexGreek</span>
   </div>
 
-  <script>
-    // Confetti
-    function spawnConfetti() {
-      const colors = ['#e9c349', '#f2d675', '#4ade80', '#60a5fa', '#f472b6', '#a78bfa'];
-      for (let i = 0; i < 60; i++) {
-        setTimeout(() => {
-          const el = document.createElement('div');
-          el.className = 'confetti-piece';
-          el.style.left = Math.random() * 100 + 'vw';
-          el.style.background = colors[Math.floor(Math.random() * colors.length)];
-          el.style.animationDuration = (2.5 + Math.random() * 2) + 's';
-          el.style.animationDelay = '0s';
-          el.style.width = (6 + Math.random() * 8) + 'px';
-          el.style.height = (6 + Math.random() * 8) + 'px';
-          document.body.appendChild(el);
-          setTimeout(() => el.remove(), 5000);
-        }, i * 60);
-      }
+  <!-- Check icon -->
+  <div class="check-ring">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#00c853" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+  </div>
+
+  <!-- Headline -->
+  <h1 class="headline">You're In.<br><span>Welcome to the Academy.</span></h1>
+  <p class="subline">Your enrollment is confirmed. You've taken the first step toward mastering the markets.</p>
+
+  <!-- Next steps card -->
+  <div class="card">
+    <p class="card-title">WHAT HAPPENS NEXT</p>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div>
+        <div class="step-title">Check Your Email</div>
+        <div class="step-desc">Login credentials and course access link sent within 5 minutes.</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div>
+        <div class="step-title">Join the Community</div>
+        <div class="step-desc">A WhatsApp / Telegram invite will be sent. Connect with 2,400+ fellow traders.</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div>
+        <div class="step-title">Start Module 1 Today</div>
+        <div class="step-desc">Market Structure Mastery — 3 hours of content ready to stream immediately.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Share -->
+  <div class="share-row">
+    <p class="share-label">SHARE YOUR WIN</p>
+    <div class="share-btns">
+      <a href="https://twitter.com/intent/tweet?text=Just+enrolled+in+%40ForexGreek+Trading+Academy+%F0%9F%9F%A2+Time+to+trade+smart.+%23ForexGreek+%23Forex" target="_blank" rel="noopener" class="share-btn">Twitter / X</a>
+      <a href="https://wa.me/?text=Just+enrolled+in+ForexGreek+Trading+Academy+%F0%9F%9F%A2+Building+real+trading+skills.+Check+it+out+at+forexgreek.in" target="_blank" rel="noopener" class="share-btn">WhatsApp</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // Confetti in green palette
+  (function() {
+    const colors = ['#00c853', '#00a152', '#69f0ae', '#1b5e20', '#b9f6ca', '#ffffff'];
+    for (let i = 0; i < 70; i++) {
+      setTimeout(() => {
+        const el = document.createElement('div');
+        el.className = 'confetti-piece';
+        el.style.left = Math.random() * 100 + 'vw';
+        el.style.background = colors[Math.floor(Math.random() * colors.length)];
+        el.style.animationDuration = (2.5 + Math.random() * 2) + 's';
+        el.style.width = el.style.height = (5 + Math.random() * 7) + 'px';
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 5000);
+      }, i * 55);
     }
-    spawnConfetti();
-    // Clear any urgency timer so it doesn't carry to a new visit
-    sessionStorage.removeItem('fg_timer_start');
-  </script>
+  })();
+
+  // Clear urgency timer
+  sessionStorage.removeItem('fg_timer_start');
+
+  // Glowing cursor
+  const glow = document.getElementById('glow');
+  document.addEventListener('mousemove', e => {
+    glow.style.left = e.clientX + 'px';
+    glow.style.top  = e.clientY + 'px';
+    glow.style.opacity = '1';
+  });
+  document.addEventListener('mouseleave', () => { glow.style.opacity = '0'; });
+</script>
+
 </body>
 </html>
