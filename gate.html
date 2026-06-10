@@ -220,17 +220,31 @@
 
   <!-- Video -->
   <div class="video-wrap" id="videoWrap">
-    <!--
-      Replace src with your actual video file.
-      Upload your ad/intro video to /public/ and update the src below.
-      Example: src="/intro-video.mp4"
-    -->
     <video
       id="gateVideo"
       src="/gate-video.mp4"
       playsinline
-      preload="metadata"
+      preload="auto"
     ></video>
+
+    <!-- Play button overlay — visible until user starts video -->
+    <div id="playOverlay" style="
+      position:absolute; inset:0;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      background:rgba(0,0,0,0.55); cursor:pointer; z-index:5;
+      gap:14px;
+    ">
+      <div style="
+        width:72px; height:72px; border-radius:50%;
+        background:linear-gradient(135deg,#00c853,#00a152);
+        display:flex; align-items:center; justify-content:center;
+        box-shadow:0 0 40px rgba(0,200,83,0.5);
+        transition:transform 0.2s;
+      " onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="#000"><path d="M8 5v14l11-7z"/></svg>
+      </div>
+      <span style="color:#fff;font-size:13px;letter-spacing:0.1em;font-family:'JetBrains Mono',monospace;">CLICK TO PLAY</span>
+    </div>
 
     <div class="progress-wrap">
       <div class="progress-label">
@@ -287,18 +301,27 @@
     return m > 0 ? `${m} min ${sec > 0 ? sec + ' sec' : ''}` : `${sec} sec`;
   }
 
-  // Click to play/pause
+  const overlay = document.getElementById('playOverlay');
+
+  function startPlay() {
+    video.play().then(() => {
+      overlay.style.display = 'none';
+    }).catch(() => {});
+  }
+
+  // Click overlay or video to play/pause
+  overlay.addEventListener('click', startPlay);
   video.addEventListener('click', () => {
-    video.paused ? video.play() : video.pause();
+    if (video.paused) video.play();
+    else video.pause();
   });
 
-  // Auto-play when ready
-  video.addEventListener('canplay', () => {
-    video.play().catch(() => {});
+  // Hide overlay once playing
+  video.addEventListener('play', () => { overlay.style.display = 'none'; });
+  // Show overlay if paused (so they can resume)
+  video.addEventListener('pause', () => {
+    if (!video.ended) overlay.style.display = 'flex';
   });
-
-  // Disable native controls to prevent seek bar
-  video.removeAttribute('controls');
 
   // Track progress, block seeking ahead, update UI
   video.addEventListener('timeupdate', () => {
