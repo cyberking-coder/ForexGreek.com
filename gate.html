@@ -214,8 +214,8 @@
 
   <div class="gate-headline">
     <p class="gate-eyebrow">Before You Enter</p>
-    <h1 class="gate-title">Watch This <span>2-Minute Message</span><br>From Your Mentor</h1>
-    <p class="gate-sub">Rohan has a quick message for you before you see the course. Watch it fully to unlock access.</p>
+    <h1 class="gate-title">Watch This <span>Important Message</span><br>From Your Mentor</h1>
+    <p class="gate-sub">Rohan has a 15-minute message for you before you see the course. Watch it to unlock full access — no skipping.</p>
   </div>
 
   <!-- Video -->
@@ -251,7 +251,7 @@
       <span id="btnText">Watch the full video to unlock</span>
       <span id="btnArrow" style="display:none;">→</span>
     </button>
-    <p class="gate-cta-hint" id="ctatHint">Button unlocks when video ends</p>
+    <p class="gate-cta-hint" id="ctatHint">Unlocks after ~90% of the video</p>
   </div>
 
 </div>
@@ -268,8 +268,10 @@
   const btnArrow  = document.getElementById('btnArrow');
   const hint      = document.getElementById('ctatHint');
 
-  let maxReached  = 0; // furthest second the user has legitimately watched
-  let unlocked    = false;
+  const UNLOCK_AT = 0.90; // unlock at 90% watched (~13.5 min of a 15-min video)
+
+  let maxReached = 0;
+  let unlocked   = false;
   let toastTimer;
 
   function fmt(s) {
@@ -277,7 +279,15 @@
     return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
   }
 
-  // Allow click-to-play/pause but block seeking ahead
+  function fmtRemaining(s) {
+    s = Math.ceil(s);
+    if (s <= 0) return '0:00';
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return m > 0 ? `${m} min ${sec > 0 ? sec + ' sec' : ''}` : `${sec} sec`;
+  }
+
+  // Click to play/pause
   video.addEventListener('click', () => {
     video.paused ? video.play() : video.pause();
   });
@@ -287,36 +297,42 @@
     video.play().catch(() => {});
   });
 
-  // Track progress — update bar and block forward seeks
+  // Disable native controls to prevent seek bar
+  video.removeAttribute('controls');
+
+  // Track progress, block seeking ahead, update UI
   video.addEventListener('timeupdate', () => {
     const dur = video.duration || 0;
     const cur = video.currentTime;
 
-    // Block seeking ahead of what's been watched
+    // Block forward seeking
     if (cur > maxReached + 2) {
       video.currentTime = maxReached;
       showToast();
       return;
     }
-
     if (cur > maxReached) maxReached = cur;
 
     const pct = dur ? (cur / dur) * 100 : 0;
     fill.style.width = pct + '%';
     pctLabel.textContent = Math.floor(pct) + '%';
     timeLabel.textContent = fmt(cur) + ' / ' + fmt(dur);
+
+    // Update hint with remaining time until unlock
+    if (!unlocked && dur) {
+      const unlockAt = dur * UNLOCK_AT;
+      const remaining = unlockAt - cur;
+      if (remaining > 0) {
+        hint.textContent = `Unlocks in ${fmtRemaining(remaining)}`;
+      }
+    }
+
+    // Unlock at 90%
+    if (!unlocked && dur && cur / dur >= UNLOCK_AT) unlock();
   });
 
-  // Disable the native seek bar (remove controls, handle via timeupdate above)
-  video.removeAttribute('controls');
-
-  // Unlock button when video ends
+  // Also unlock on ended
   video.addEventListener('ended', unlock);
-
-  // Also unlock at 98% in case 'ended' fires slightly early
-  video.addEventListener('timeupdate', () => {
-    if (!unlocked && video.duration && video.currentTime / video.duration >= 0.98) unlock();
-  });
 
   function unlock() {
     if (unlocked) return;
