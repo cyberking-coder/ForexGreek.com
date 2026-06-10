@@ -480,6 +480,183 @@
     .faq-item.open .faq-chevron {
       transform: rotate(180deg);
     }
+
+    /* ── Timeline Roadmap ─────────────────────────── */
+    .tl-roadmap {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+    /* Center vertical spine */
+    .tl-roadmap::before {
+      content: '';
+      position: absolute;
+      top: 0; bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 2px;
+      background: rgba(0,200,83,0.15);
+      z-index: 0;
+    }
+    /* Traveling dot */
+    .tl-dot-travel {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #00c853;
+      box-shadow: 0 0 12px 4px rgba(0,200,83,0.7);
+      z-index: 10;
+      top: 0;
+      pointer-events: none;
+      transition: top 0.05s linear;
+    }
+    /* Each row */
+    .tl-item {
+      position: relative;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      min-height: 140px;
+      padding: 28px 0;
+    }
+    .tl-item.tl-left {
+      flex-direction: row;
+      justify-content: flex-start;
+    }
+    .tl-item.tl-right {
+      flex-direction: row;
+      justify-content: flex-end;
+    }
+    /* Bright line segment that fills in above each circle */
+    .tl-line-segment {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 2px;
+      top: 0;
+      height: 0;
+      background: #00c853;
+      z-index: 1;
+      transition: height 0.6s ease;
+    }
+    /* Numbered circle */
+    .tl-circle {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: #111614;
+      border: 2px solid #00c853;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: box-shadow 0.5s ease, border-color 0.5s ease;
+    }
+    .tl-num {
+      color: rgba(0,200,83,0.5);
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 16px;
+      transition: color 0.5s ease;
+    }
+    /* Active circle */
+    .tl-item.tl-active .tl-circle {
+      box-shadow: 0 0 0 6px rgba(0,200,83,0.1), 0 0 24px rgba(0,200,83,0.5);
+      border-color: #00c853;
+    }
+    .tl-item.tl-active .tl-num {
+      color: #00c853;
+    }
+    /* Content card */
+    .tl-card {
+      width: 42%;
+      background: #111614;
+      border: 1px solid rgba(0,200,83,0.15);
+      border-radius: 16px;
+      padding: 24px;
+      opacity: 0.3;
+      transition: opacity 0.6s ease, transform 0.6s ease, border-color 0.5s ease, box-shadow 0.5s ease;
+    }
+    .tl-left .tl-card {
+      margin-right: calc(50% + 40px);
+      transform: translateX(-24px);
+    }
+    .tl-right .tl-card {
+      margin-left: calc(50% + 40px);
+      transform: translateX(24px);
+    }
+    /* Active card */
+    .tl-item.tl-active .tl-card {
+      opacity: 1;
+      transform: translateX(0);
+      border-color: rgba(0,200,83,0.5);
+      box-shadow: 0 0 20px rgba(0,200,83,0.1);
+    }
+    .tl-card-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: rgba(0,200,83,0.08);
+      border: 1px solid rgba(0,200,83,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 14px;
+    }
+    .tl-card-title {
+      color: #fff;
+      font-weight: 600;
+      font-size: 16px;
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+    .tl-card-desc {
+      color: #9ca3af;
+      font-size: 14px;
+      line-height: 1.65;
+    }
+    /* Mobile — stack all cards on right, line on left */
+    @media (max-width: 768px) {
+      .tl-roadmap::before {
+        left: 24px;
+      }
+      .tl-dot-travel {
+        left: 24px;
+      }
+      .tl-item.tl-left,
+      .tl-item.tl-right {
+        flex-direction: row;
+        justify-content: flex-end;
+      }
+      .tl-circle {
+        left: 24px;
+        width: 40px;
+        height: 40px;
+      }
+      .tl-card {
+        width: calc(100% - 72px);
+      }
+      .tl-left .tl-card {
+        margin-right: 0;
+        margin-left: 72px;
+        transform: translateX(16px);
+      }
+      .tl-right .tl-card {
+        margin-left: 72px;
+        transform: translateX(16px);
+      }
+      .tl-item.tl-active .tl-card {
+        transform: translateX(0);
+      }
+    }
   </style>
 </head>
 
@@ -658,10 +835,10 @@
   <div class="section-divider"></div>
 
   <!-- ══════════════════════════════════════════
-       COURSE HIGHLIGHTS
+       COURSE HIGHLIGHTS — TIMELINE ROADMAP
   ══════════════════════════════════════════ -->
   <section id="curriculum" class="py-24 px-6 max-w-6xl mx-auto">
-    <div class="text-center mb-16 anim-fade-up">
+    <div class="text-center mb-20 anim-fade-up">
       <div class="mb-4"><span class="section-badge">COURSE HIGHLIGHTS</span></div>
       <h2 class="text-white font-bold text-4xl md:text-5xl font-geist mt-4 mb-4">
         What You'll <span style="color:#00c853;">Discover Inside</span>
@@ -671,49 +848,103 @@
       </p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <!-- Highlight 1 -->
-      <div class="highlight-card anim-fade-up" style="--delay:0ms">
-        <div class="flex items-center gap-3 mb-4">
-          <span class="font-mono font-bold text-3xl" style="color: rgba(0,200,83,0.3);">01</span>
-          <div class="icon-circle" style="margin-bottom:0; width:44px; height:44px;">
-            <svg width="20" height="20" fill="none" stroke="#00c853" stroke-width="2" viewBox="0 0 24 24">
-              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+    <!-- Timeline Roadmap -->
+    <div class="tl-roadmap" id="tlRoadmap">
+      <!-- Traveling dot -->
+      <div class="tl-dot-travel" id="tlTravelDot"></div>
+
+      <!-- Module 1 — left -->
+      <div class="tl-item tl-left" data-index="0">
+        <div class="tl-line-segment" id="tlSeg0"></div>
+        <div class="tl-circle" id="tlCircle0">
+          <span class="tl-num">1</span>
+        </div>
+        <div class="tl-card" id="tlCard0">
+          <div class="tl-card-icon">
+            <svg width="22" height="22" fill="none" stroke="#00c853" stroke-width="2" viewBox="0 0 24 24">
+              <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
+              <polyline points="16 7 22 7 22 13"/>
             </svg>
           </div>
+          <h3 class="tl-card-title">Decode Market Structure Like a Pro</h3>
+          <p class="tl-card-desc">Learn to read price action, identify key levels, and understand how the market moves before it moves.</p>
         </div>
-        <h3 class="text-white font-semibold text-lg mb-2">Secret #1: Decode Market Structure Like a Pro</h3>
-        <p class="text-gray-400 text-sm leading-relaxed">Understand how markets move, identify key levels, and read price action the way institutional traders do.</p>
       </div>
 
-      <!-- Highlight 2 -->
-      <div class="highlight-card anim-fade-up" style="--delay:150ms">
-        <div class="flex items-center gap-3 mb-4">
-          <span class="font-mono font-bold text-3xl" style="color: rgba(0,200,83,0.3);">02</span>
-          <div class="icon-circle" style="margin-bottom:0; width:44px; height:44px;">
-            <svg width="20" height="20" fill="none" stroke="#00c853" stroke-width="2" viewBox="0 0 24 24">
+      <!-- Module 2 — right -->
+      <div class="tl-item tl-right" data-index="1">
+        <div class="tl-line-segment" id="tlSeg1"></div>
+        <div class="tl-circle" id="tlCircle1">
+          <span class="tl-num">2</span>
+        </div>
+        <div class="tl-card" id="tlCard1">
+          <div class="tl-card-icon">
+            <svg width="22" height="22" fill="none" stroke="#00c853" stroke-width="2" viewBox="0 0 24 24">
               <line x1="12" y1="1" x2="12" y2="23"/>
               <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
             </svg>
           </div>
+          <h3 class="tl-card-title">Understand Smart Money Concepts</h3>
+          <p class="tl-card-desc">Master institutional trading strategies — order blocks, liquidity zones, and market manipulation.</p>
         </div>
-        <h3 class="text-white font-semibold text-lg mb-2">Secret #2: Understand Smart Money Concepts</h3>
-        <p class="text-gray-400 text-sm leading-relaxed">Learn how the "smart money" — banks and institutions — move the market and how to follow their footprints.</p>
       </div>
 
-      <!-- Highlight 3 -->
-      <div class="highlight-card anim-fade-up" style="--delay:300ms">
-        <div class="flex items-center gap-3 mb-4">
-          <span class="font-mono font-bold text-3xl" style="color: rgba(0,200,83,0.3);">03</span>
-          <div class="icon-circle" style="margin-bottom:0; width:44px; height:44px;">
-            <svg width="20" height="20" fill="none" stroke="#00c853" stroke-width="2" viewBox="0 0 24 24">
+      <!-- Module 3 — left -->
+      <div class="tl-item tl-left" data-index="2">
+        <div class="tl-line-segment" id="tlSeg2"></div>
+        <div class="tl-circle" id="tlCircle2">
+          <span class="tl-num">3</span>
+        </div>
+        <div class="tl-card" id="tlCard2">
+          <div class="tl-card-icon">
+            <svg width="22" height="22" fill="none" stroke="#00c853" stroke-width="2" viewBox="0 0 24 24">
               <path d="M9.5 2A5.5 5.5 0 0 1 15 7.5V9h1a3 3 0 1 1 0 6h-1v1.5A5.5 5.5 0 0 1 9.5 22"/>
               <path d="M9.5 2A5.5 5.5 0 0 0 4 7.5V9H3a3 3 0 0 0 0 6h1v1.5A5.5 5.5 0 0 0 9.5 22"/>
             </svg>
           </div>
+          <h3 class="tl-card-title">Master Risk &amp; Psychology for Long-Term Success</h3>
+          <p class="tl-card-desc">Build the mental discipline and risk management framework that separates professionals from amateurs.</p>
         </div>
-        <h3 class="text-white font-semibold text-lg mb-2">Secret #3: Master Risk & Psychology for Long-Term Success</h3>
-        <p class="text-gray-400 text-sm leading-relaxed">Develop the mental edge and risk discipline that separates consistently profitable traders from the rest.</p>
+      </div>
+
+      <!-- Module 4 — right -->
+      <div class="tl-item tl-right" data-index="3">
+        <div class="tl-line-segment" id="tlSeg3"></div>
+        <div class="tl-circle" id="tlCircle3">
+          <span class="tl-num">4</span>
+        </div>
+        <div class="tl-card" id="tlCard3">
+          <div class="tl-card-icon">
+            <svg width="22" height="22" fill="none" stroke="#00c853" stroke-width="2" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10"/>
+              <circle cx="12" cy="12" r="3"/>
+              <line x1="12" y1="2" x2="12" y2="5"/>
+              <line x1="12" y1="19" x2="12" y2="22"/>
+              <line x1="2" y1="12" x2="5" y2="12"/>
+              <line x1="19" y1="12" x2="22" y2="12"/>
+            </svg>
+          </div>
+          <h3 class="tl-card-title">Live Trade Analysis &amp; Execution</h3>
+          <p class="tl-card-desc">Watch real trades being placed and analyzed in live market conditions with full explanation.</p>
+        </div>
+      </div>
+
+      <!-- Module 5 — left -->
+      <div class="tl-item tl-left" data-index="4">
+        <div class="tl-line-segment" id="tlSeg4"></div>
+        <div class="tl-circle" id="tlCircle4">
+          <span class="tl-num">5</span>
+        </div>
+        <div class="tl-card" id="tlCard4">
+          <div class="tl-card-icon">
+            <svg width="22" height="22" fill="none" stroke="#00c853" stroke-width="2" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+          </div>
+          <h3 class="tl-card-title">Build Your Personal Trading System</h3>
+          <p class="tl-card-desc">Create your own rules-based trading strategy that works consistently across all market conditions.</p>
+        </div>
       </div>
     </div>
   </section>
@@ -1814,6 +2045,45 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 <script>
+// ── Timeline Roadmap: IntersectionObserver + traveling dot ──────────
+(function() {
+  const items = document.querySelectorAll('.tl-item');
+  const roadmap = document.getElementById('tlRoadmap');
+  const travelDot = document.getElementById('tlTravelDot');
+
+  if (!roadmap || !items.length) return;
+
+  // Activate items as they enter viewport
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const item = entry.target;
+        item.classList.add('tl-active');
+        // Animate the line segment to fill from 0 to half the item height (reaching the circle)
+        const seg = item.querySelector('.tl-line-segment');
+        if (seg) seg.style.height = '50%';
+      }
+    });
+  }, { threshold: 0.35 });
+
+  items.forEach(item => io.observe(item));
+
+  // Traveling dot: move down the center spine as user scrolls through the section
+  function updateTravelDot() {
+    if (!travelDot || !roadmap) return;
+    const rect = roadmap.getBoundingClientRect();
+    const totalH = roadmap.offsetHeight;
+    const viewH = window.innerHeight;
+
+    // progress: 0 when section top hits bottom of viewport, 1 when section bottom hits top
+    const progress = Math.min(1, Math.max(0, (viewH - rect.top) / (viewH + totalH)));
+    travelDot.style.top = (progress * totalH) + 'px';
+  }
+
+  window.addEventListener('scroll', updateTravelDot, { passive: true });
+  updateTravelDot();
+})();
+
 // Glowing cursor effect
 (function() {
   const glow = document.createElement('div');
