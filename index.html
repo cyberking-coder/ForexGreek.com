@@ -407,18 +407,21 @@
       width: 100%;
       max-width: 620px;
       margin: 0 auto;
-      height: 260px;
+      height: 300px;
       perspective: 1000px;
+    }
+    @media (max-width: 600px) {
+      .tsl-stage { height: 340px; }
     }
     .tsl-card {
       position: absolute;
       inset: 0;
       border-radius: 16px;
-      padding: 28px;
+      padding: 24px;
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       cursor: pointer;
-      overflow: hidden;
+      overflow: visible;
       transform-style: preserve-3d;
       transition: transform 0.6s cubic-bezier(0.4,0,0.2,1),
                   opacity 0.6s ease,
@@ -797,34 +800,45 @@
       font-size: 14px;
       line-height: 1.65;
     }
-    /* Mobile — stack all cards on right, line on left */
+    /* Mobile — line on far left, cards fill remaining space */
     @media (max-width: 768px) {
       .tl-roadmap::before {
-        left: 20px;
+        left: 18px !important;
+        transform: none !important;
       }
       .tl-dot-travel {
-        left: 20px;
+        left: 18px !important;
+        transform: translateX(-50%) !important;
       }
       .tl-item.tl-left,
       .tl-item.tl-right {
-        flex-direction: row;
-        justify-content: flex-end;
+        flex-direction: row !important;
+        justify-content: flex-end !important;
       }
       .tl-circle {
-        left: 20px;
-        transform: translateX(-50%);
-        width: 36px;
-        height: 36px;
+        left: 18px !important;
+        transform: translateX(-50%) !important;
+        width: 36px !important;
+        height: 36px !important;
       }
       .tl-num { font-size: 13px; }
+      .tl-line-segment {
+        left: 18px !important;
+        transform: none !important;
+      }
       .tl-card {
-        width: calc(100% - 68px);
-        margin-left: 68px !important;
+        width: calc(100% - 72px) !important;
+        margin-left: 72px !important;
+        margin-right: 0 !important;
+      }
+      .tl-left .tl-card,
+      .tl-right .tl-card {
+        margin-left: 72px !important;
         margin-right: 0 !important;
         transform: translateX(16px);
       }
       .tl-item.tl-active .tl-card {
-        transform: translateX(0);
+        transform: translateX(0) !important;
       }
     }
   </style>
