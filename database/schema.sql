@@ -13,5 +13,7 @@ CREATE TABLE IF NOT EXISTS students (
   payment_id VARCHAR(255),
   razorpay_order_id VARCHAR(255),
   enrolled_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  payment_completed_at TIMESTAMP NULL
+  payment_completed_at TIMESTAMP NULL,
+  reset_token VARCHAR(64) NULL,
+  reset_token_expires DATETIME NULL
 );
