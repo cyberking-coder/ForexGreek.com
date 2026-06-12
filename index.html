@@ -418,6 +418,7 @@
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       cursor: pointer;
+      overflow: hidden;
       transform-style: preserve-3d;
       transition: transform 0.6s cubic-bezier(0.4,0,0.2,1),
                   opacity 0.6s ease,
@@ -799,10 +800,10 @@
     /* Mobile — stack all cards on right, line on left */
     @media (max-width: 768px) {
       .tl-roadmap::before {
-        left: 24px;
+        left: 20px;
       }
       .tl-dot-travel {
-        left: 24px;
+        left: 20px;
       }
       .tl-item.tl-left,
       .tl-item.tl-right {
@@ -810,21 +811,17 @@
         justify-content: flex-end;
       }
       .tl-circle {
-        left: 24px;
-        width: 40px;
-        height: 40px;
+        left: 20px;
+        transform: translateX(-50%);
+        width: 36px;
+        height: 36px;
       }
+      .tl-num { font-size: 13px; }
       .tl-card {
-        width: calc(100% - 72px);
-      }
-      .tl-left .tl-card {
-        margin-right: 0;
-        margin-left: 72px;
-        transform: translateX(20px);
-      }
-      .tl-right .tl-card {
-        margin-left: 72px;
-        transform: translateX(20px);
+        width: calc(100% - 68px);
+        margin-left: 68px !important;
+        margin-right: 0 !important;
+        transform: translateX(16px);
       }
       .tl-item.tl-active .tl-card {
         transform: translateX(0);
@@ -1439,10 +1436,16 @@
           <p class="text-gray-500 text-sm leading-relaxed mb-5">
             India's most practical Forex course — helping traders achieve consistent profitability through real education.
           </p>
+          <div class="flex gap-2">
           <!-- Twitter icon -->
           <a href="#" class="inline-flex items-center justify-center w-9 h-9 rounded-lg transition-colors" style="border:1px solid rgba(0,200,83,0.2); color:#9ca3af;" onmouseover="this.style.borderColor='rgba(0,200,83,0.5)';this.style.color='#00c853'" onmouseout="this.style.borderColor='rgba(0,200,83,0.2)';this.style.color='#9ca3af'">
             <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.745l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
           </a>
+          <!-- Telegram icon -->
+          <a href="https://t.me/theforexgreek" target="_blank" rel="noopener" class="inline-flex items-center justify-center w-9 h-9 rounded-lg transition-colors" style="border:1px solid rgba(0,200,83,0.2); color:#9ca3af;" onmouseover="this.style.borderColor='rgba(0,200,83,0.5)';this.style.color='#00c853'" onmouseout="this.style.borderColor='rgba(0,200,83,0.2)';this.style.color='#9ca3af'">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.932z"/></svg>
+          </a>
+          </div>
         </div>
 
         <!-- Middle: Quick Links -->
@@ -1453,6 +1456,7 @@
             <li><a href="#curriculum" class="hover:text-gold transition-colors">Courses</a></li>
             <li><a href="#results" class="hover:text-gold transition-colors">Success Stories</a></li>
             <li><a href="mailto:forexgreeksupport@gmail.com" class="hover:text-gold transition-colors">Contact</a></li>
+            <li><a href="https://t.me/theforexgreek" target="_blank" rel="noopener" class="hover:text-gold transition-colors">Telegram</a></li>
           </ul>
         </div>
 
