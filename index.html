@@ -1441,7 +1441,7 @@
         <div>
           <div class="flex items-center gap-3 mb-4">
             <img src="/logo-icon.PNG" alt="ForexGreek" style="height:44px;width:44px;object-fit:contain;" />
-            <img src="/logo-full.PNG" alt="ForexGreek Trading Academy" style="height:28px;object-fit:contain;" />
+            <span class="font-semibold text-lg" style="color:#00c853;">ForexGreek Trading Academy</span>
           </div>
           <p class="text-gray-500 text-sm leading-relaxed mb-5">
             India's most practical Forex course — helping traders achieve consistent profitability through real education.
@@ -2439,6 +2439,56 @@ document.addEventListener('DOMContentLoaded', () => {
 
   goTo(0);
   resetAuto();
+})();
+
+// ── Security: disable right-click + F12/devtools deterrent ───────────
+(function() {
+  // Disable right-click
+  document.addEventListener('contextmenu', e => e.preventDefault());
+
+  // Block common inspect shortcuts
+  document.addEventListener('keydown', e => {
+    const blocked =
+      e.key === 'F12' ||
+      (e.ctrlKey && e.shiftKey && ['I','J','C','U'].includes(e.key.toUpperCase())) ||
+      (e.ctrlKey && e.key.toUpperCase() === 'U');
+    if (blocked) e.preventDefault();
+  });
+
+  // DevTools size detection — blur page if opened
+  let devtoolsOpen = false;
+  function checkDevTools() {
+    const threshold = 160;
+    const widthDiff  = window.outerWidth  - window.innerWidth  > threshold;
+    const heightDiff = window.outerHeight - window.innerHeight > threshold;
+    if ((widthDiff || heightDiff) && !devtoolsOpen) {
+      devtoolsOpen = true;
+      document.body.style.filter = 'blur(8px)';
+      document.body.style.pointerEvents = 'none';
+    } else if (!widthDiff && !heightDiff && devtoolsOpen) {
+      devtoolsOpen = false;
+      document.body.style.filter = '';
+      document.body.style.pointerEvents = '';
+    }
+  }
+  setInterval(checkDevTools, 1000);
+
+  // Price integrity — re-fetch from server every 30s and restore if tampered
+  async function enforcePrices() {
+    try {
+      const res  = await fetch('/api/config');
+      const data = await res.json();
+      const offerPx    = data.offerPrice;
+      const originalPx = data.originalPrice;
+      document.querySelectorAll('.enroll-price-display').forEach(el => {
+        el.textContent = `₹${offerPx.toLocaleString('en-IN')}`;
+      });
+      document.querySelectorAll('.enroll-original-display').forEach(el => {
+        el.textContent = `₹${originalPx.toLocaleString('en-IN')}`;
+      });
+    } catch(_) {}
+  }
+  setInterval(enforcePrices, 30000);
 })();
 
 // Glowing cursor effect
